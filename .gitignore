@@ -1,0 +1,58 @@
+# Rust / Tauri
+target/
+apps/desktop/src-tauri/target/
+
+# Node / Frontend
+node_modules/
+apps/desktop/node_modules/
+apps/desktop/dist/
+apps/desktop/.vite/
+*.tsbuildinfo
+
+# Python / Sidecar
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+packages/sidecar/.venv/
+packages/sidecar/dist/
+packages/sidecar/build/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# PyInstaller binary output
+packages/sidecar/neuralflow-sidecar
+packages/sidecar/neuralflow-sidecar.exe
+
+# Tauri build outputs
+apps/desktop/src-tauri/target/
+
+# Environment and secrets
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+
+# NeuralFlow local data (user data, not source)
+*.db
+*.db-shm
+*.db-wal
+.neuralflow/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+logs/
