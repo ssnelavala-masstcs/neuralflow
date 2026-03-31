@@ -10,7 +10,7 @@ Thank you for your interest in contributing. This guide covers how to get set up
 - [Python 3.11+](https://python.org) + [uv](https://github.com/astral-sh/uv)
 
 ```bash
-git clone https://github.com/neuralflow-ai/neuralflow
+git clone https://github.com/ssnelavala-masstcs/neuralflow
 cd neuralflow
 ./scripts/setup-dev.sh   # installs all deps
 ./scripts/dev.sh         # starts Tauri dev + Python sidecar

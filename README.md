@@ -109,7 +109,7 @@ Double-click, install, open. That's it.
 
 ```bash
 # 1. Clone the repo
-git clone https://github.com/neuralflow-ai/neuralflow
+git clone https://github.com/ssnelavala-masstcs/neuralflow
 cd neuralflow
 
 # 2. Install all dependencies (frontend + sidecar)
@@ -268,7 +268,7 @@ neuralflow/
 
 Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for setup instructions, code style, and the PR process.
 
-**Good first issues** are tagged in the [issue tracker](https://github.com/neuralflow-ai/neuralflow/issues).
+**Good first issues** are tagged in the [issue tracker](https://github.com/ssnelavala-masstcs/neuralflow/issues).
 
 Areas where contributions are especially valuable:
 - New built-in tool implementations (`packages/sidecar/neuralflow/tools/`)
@@ -302,6 +302,6 @@ NeuralFlow is built on the shoulders of excellent open-source projects:
 
 <div align="center">
 
-Made with care by [S&L Tech](https://github.com/neuralflow-ai)
+Made with care by S&L Tech
 
 </div>
