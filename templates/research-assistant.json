@@ -1,0 +1,55 @@
+{
+  "name": "Research Assistant",
+  "description": "Researches a topic using web search and produces a structured summary report.",
+  "execution_mode": "sequential",
+  "tags": ["research", "starter"],
+  "canvas_data": {
+    "nodes": [
+      {
+        "id": "trigger-1",
+        "type": "trigger",
+        "position": { "x": 300, "y": 50 },
+        "data": { "label": "Start", "triggerType": "manual" }
+      },
+      {
+        "id": "agent-search",
+        "type": "agent",
+        "position": { "x": 300, "y": 180 },
+        "data": {
+          "label": "Search Agent",
+          "model": "openai/gpt-4o-mini",
+          "systemPrompt": "You are a research assistant. Search the web for information about the user's query and collect key facts, sources, and insights. Return a comprehensive set of notes.",
+          "temperature": 0.3,
+          "maxTokens": 2048,
+          "tools": ["web_search"],
+          "role": "Researcher"
+        }
+      },
+      {
+        "id": "agent-writer",
+        "type": "agent",
+        "position": { "x": 300, "y": 360 },
+        "data": {
+          "label": "Report Writer",
+          "model": "openai/gpt-4o-mini",
+          "systemPrompt": "You are a professional report writer. Given the research notes provided, write a clear, well-structured report in Markdown format with an executive summary, key findings, and sources.",
+          "temperature": 0.7,
+          "maxTokens": 3000,
+          "tools": [],
+          "role": "Writer"
+        }
+      },
+      {
+        "id": "output-1",
+        "type": "output",
+        "position": { "x": 300, "y": 540 },
+        "data": { "label": "Report Output", "outputFormat": "markdown" }
+      }
+    ],
+    "edges": [
+      { "id": "e1", "source": "trigger-1", "target": "agent-search", "type": "data" },
+      { "id": "e2", "source": "agent-search", "target": "agent-writer", "type": "data" },
+      { "id": "e3", "source": "agent-writer", "target": "output-1", "type": "data" }
+    ]
+  }
+}

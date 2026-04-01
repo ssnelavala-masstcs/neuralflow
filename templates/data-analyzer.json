@@ -1,0 +1,55 @@
+{
+  "name": "Data Analyzer",
+  "description": "Reads a CSV/JSON file, analyzes it, and produces insights and a summary report.",
+  "execution_mode": "sequential",
+  "tags": ["data", "analysis", "starter"],
+  "canvas_data": {
+    "nodes": [
+      {
+        "id": "trigger-1",
+        "type": "trigger",
+        "position": { "x": 300, "y": 50 },
+        "data": { "label": "Start", "triggerType": "manual" }
+      },
+      {
+        "id": "agent-reader",
+        "type": "agent",
+        "position": { "x": 300, "y": 180 },
+        "data": {
+          "label": "Data Reader",
+          "model": "openai/gpt-4o-mini",
+          "systemPrompt": "You are a data engineer. Use the file_read tool to read the specified data file. Extract column names, data types, row count, null percentages, and basic statistics. Return a structured JSON summary of the dataset.",
+          "temperature": 0.1,
+          "maxTokens": 2000,
+          "tools": ["file_read"],
+          "role": "Researcher"
+        }
+      },
+      {
+        "id": "agent-analyst",
+        "type": "agent",
+        "position": { "x": 300, "y": 360 },
+        "data": {
+          "label": "Data Analyst",
+          "model": "openai/gpt-4o-mini",
+          "systemPrompt": "You are a senior data analyst. Given the data summary, identify: key trends, anomalies, correlations, outliers, and actionable insights. Calculate relevant statistics. Produce a comprehensive analysis report in Markdown.",
+          "temperature": 0.4,
+          "maxTokens": 3000,
+          "tools": ["calculator"],
+          "role": "Researcher"
+        }
+      },
+      {
+        "id": "output-1",
+        "type": "output",
+        "position": { "x": 300, "y": 540 },
+        "data": { "label": "Analysis Report", "outputFormat": "markdown" }
+      }
+    ],
+    "edges": [
+      { "id": "e1", "source": "trigger-1", "target": "agent-reader", "type": "data" },
+      { "id": "e2", "source": "agent-reader", "target": "agent-analyst", "type": "data" },
+      { "id": "e3", "source": "agent-analyst", "target": "output-1", "type": "data" }
+    ]
+  }
+}

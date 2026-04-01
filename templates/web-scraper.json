@@ -1,0 +1,77 @@
+{
+  "name": "Web Scraper",
+  "description": "Fetches content from a URL, extracts key information, and saves a structured summary.",
+  "execution_mode": "sequential",
+  "tags": ["web", "scraping", "starter"],
+  "canvas_data": {
+    "nodes": [
+      {
+        "id": "trigger-1",
+        "type": "trigger",
+        "position": { "x": 300, "y": 50 },
+        "data": { "label": "Start", "triggerType": "manual" }
+      },
+      {
+        "id": "agent-fetcher",
+        "type": "agent",
+        "position": { "x": 300, "y": 180 },
+        "data": {
+          "label": "Web Fetcher",
+          "model": "openai/gpt-4o-mini",
+          "systemPrompt": "You are a web scraping agent. Use the http_request tool to fetch the URL provided by the user. Extract the raw HTML content and return it along with the page title and URL.",
+          "temperature": 0.1,
+          "maxTokens": 4000,
+          "tools": ["http_request"],
+          "role": "Researcher"
+        }
+      },
+      {
+        "id": "agent-extractor",
+        "type": "agent",
+        "position": { "x": 300, "y": 360 },
+        "data": {
+          "label": "Content Extractor",
+          "model": "openai/gpt-4o-mini",
+          "systemPrompt": "You are a content extraction specialist. Given raw web content, extract: main article text, author, publication date, key headings, links, and metadata. Remove boilerplate (nav, ads, footer). Return clean structured JSON.",
+          "temperature": 0.2,
+          "maxTokens": 3000,
+          "tools": [],
+          "role": "Researcher"
+        }
+      },
+      {
+        "id": "agent-summarizer",
+        "type": "agent",
+        "position": { "x": 300, "y": 530 },
+        "data": {
+          "label": "Summarizer",
+          "model": "openai/gpt-4o-mini",
+          "systemPrompt": "You are a content summarizer. Given the extracted web content, produce a concise summary (3-5 paragraphs) covering: main topic, key points, important data or statistics, and a concluding takeaway.",
+          "temperature": 0.5,
+          "maxTokens": 1500,
+          "tools": [],
+          "role": "Writer"
+        }
+      },
+      {
+        "id": "tool-save",
+        "type": "tool",
+        "position": { "x": 300, "y": 690 },
+        "data": { "label": "Save to File", "toolName": "file_write" }
+      },
+      {
+        "id": "output-1",
+        "type": "output",
+        "position": { "x": 300, "y": 820 },
+        "data": { "label": "Summary Output", "outputFormat": "markdown" }
+      }
+    ],
+    "edges": [
+      { "id": "e1", "source": "trigger-1", "target": "agent-fetcher", "type": "data" },
+      { "id": "e2", "source": "agent-fetcher", "target": "agent-extractor", "type": "data" },
+      { "id": "e3", "source": "agent-extractor", "target": "agent-summarizer", "type": "data" },
+      { "id": "e4", "source": "agent-summarizer", "target": "tool-save", "type": "data" },
+      { "id": "e5", "source": "tool-save", "target": "output-1", "type": "data" }
+    ]
+  }
+}

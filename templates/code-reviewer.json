@@ -1,0 +1,71 @@
+{
+  "name": "Code Reviewer",
+  "description": "Reviews code for bugs, security issues, and improvements. Produces a structured review report.",
+  "execution_mode": "sequential",
+  "tags": ["code", "review", "starter"],
+  "canvas_data": {
+    "nodes": [
+      {
+        "id": "trigger-1",
+        "type": "trigger",
+        "position": { "x": 300, "y": 50 },
+        "data": { "label": "Start", "triggerType": "manual" }
+      },
+      {
+        "id": "agent-security",
+        "type": "agent",
+        "position": { "x": 150, "y": 200 },
+        "data": {
+          "label": "Security Auditor",
+          "model": "openai/gpt-4o-mini",
+          "systemPrompt": "You are a security expert. Analyze the provided code for security vulnerabilities: SQL injection, XSS, authentication flaws, insecure dependencies, secrets in code, OWASP Top 10. List each issue with severity (Critical/High/Medium/Low) and remediation advice.",
+          "temperature": 0.2,
+          "maxTokens": 2000,
+          "tools": [],
+          "role": "Critic"
+        }
+      },
+      {
+        "id": "agent-quality",
+        "type": "agent",
+        "position": { "x": 450, "y": 200 },
+        "data": {
+          "label": "Code Quality Reviewer",
+          "model": "openai/gpt-4o-mini",
+          "systemPrompt": "You are a senior software engineer. Review the code for: correctness, readability, maintainability, performance issues, test coverage gaps, and best practice violations. Provide concrete refactoring suggestions.",
+          "temperature": 0.3,
+          "maxTokens": 2000,
+          "tools": [],
+          "role": "Critic"
+        }
+      },
+      {
+        "id": "agent-summary",
+        "type": "agent",
+        "position": { "x": 300, "y": 380 },
+        "data": {
+          "label": "Review Summarizer",
+          "model": "openai/gpt-4o-mini",
+          "systemPrompt": "You are a tech lead. Given security and quality reviews, produce a final structured code review report in Markdown with: overall score (1-10), executive summary, prioritized action items, and a final recommendation (approve/request changes/reject).",
+          "temperature": 0.4,
+          "maxTokens": 1500,
+          "tools": [],
+          "role": "Planner"
+        }
+      },
+      {
+        "id": "output-1",
+        "type": "output",
+        "position": { "x": 300, "y": 540 },
+        "data": { "label": "Review Report", "outputFormat": "markdown" }
+      }
+    ],
+    "edges": [
+      { "id": "e1", "source": "trigger-1", "target": "agent-security", "type": "data" },
+      { "id": "e2", "source": "trigger-1", "target": "agent-quality", "type": "data" },
+      { "id": "e3", "source": "agent-security", "target": "agent-summary", "type": "data" },
+      { "id": "e4", "source": "agent-quality", "target": "agent-summary", "type": "data" },
+      { "id": "e5", "source": "agent-summary", "target": "output-1", "type": "data" }
+    ]
+  }
+}

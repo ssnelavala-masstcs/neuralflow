@@ -1,0 +1,28 @@
+[package]
+name = "neuralflow"
+version = "0.1.0"
+description = "NeuralFlow Desktop App"
+authors = ["Stanley Sujith Nelavala"]
+license = "Apache-2.0"
+repository = "https://github.com/ssnelavala-masstcs/neuralflow"
+edition = "2021"
+
+[lib]
+name = "neuralflow_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon", "image-ico", "image-png"] }
+tauri-plugin-shell = "2"
+tauri-plugin-dialog = "2"
+tauri-plugin-notification = "2"
+keyring = { version = "2", features = ["apple-native", "windows-native", "linux-native"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[features]
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]

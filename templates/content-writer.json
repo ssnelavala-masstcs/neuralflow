@@ -1,0 +1,55 @@
+{
+  "name": "Content Writer",
+  "description": "Generates a blog post or article on any topic with research and SEO-optimized writing.",
+  "execution_mode": "sequential",
+  "tags": ["content", "writing", "starter"],
+  "canvas_data": {
+    "nodes": [
+      {
+        "id": "trigger-1",
+        "type": "trigger",
+        "position": { "x": 300, "y": 50 },
+        "data": { "label": "Start", "triggerType": "manual" }
+      },
+      {
+        "id": "agent-outline",
+        "type": "agent",
+        "position": { "x": 300, "y": 180 },
+        "data": {
+          "label": "Outline Planner",
+          "model": "openai/gpt-4o-mini",
+          "systemPrompt": "You are a content strategist. Create a detailed blog post outline for the given topic including: title, introduction hook, 5-7 main sections with subsections, and a conclusion. Also suggest 5 SEO keywords.",
+          "temperature": 0.6,
+          "maxTokens": 1500,
+          "tools": [],
+          "role": "Planner"
+        }
+      },
+      {
+        "id": "agent-writer",
+        "type": "agent",
+        "position": { "x": 300, "y": 360 },
+        "data": {
+          "label": "Content Writer",
+          "model": "openai/gpt-4o-mini",
+          "systemPrompt": "You are a professional content writer. Given the outline, write a complete, engaging, SEO-optimized blog post in Markdown. Each section should be thorough with examples and actionable insights. Target 1500-2000 words.",
+          "temperature": 0.8,
+          "maxTokens": 4000,
+          "tools": [],
+          "role": "Writer"
+        }
+      },
+      {
+        "id": "output-1",
+        "type": "output",
+        "position": { "x": 300, "y": 540 },
+        "data": { "label": "Article Output", "outputFormat": "markdown" }
+      }
+    ],
+    "edges": [
+      { "id": "e1", "source": "trigger-1", "target": "agent-outline", "type": "data" },
+      { "id": "e2", "source": "agent-outline", "target": "agent-writer", "type": "data" },
+      { "id": "e3", "source": "agent-writer", "target": "output-1", "type": "data" }
+    ]
+  }
+}
