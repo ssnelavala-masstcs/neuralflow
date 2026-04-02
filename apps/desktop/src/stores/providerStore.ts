@@ -27,7 +27,13 @@ export const useProviderStore = create<ProviderState>()(
     },
 
     addProvider: async (data) => {
-      const p = await providersApi.create(data);
+      const apiData = {
+        ...data,
+        base_url: data.base_url ?? undefined,
+        api_key_ref: data.api_key_ref ?? undefined,
+        default_model: data.default_model ?? undefined,
+      };
+      const p = await providersApi.create(apiData);
       set((s) => { s.providers.push(p); });
       return p;
     },

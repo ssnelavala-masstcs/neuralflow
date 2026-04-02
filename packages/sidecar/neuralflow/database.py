@@ -36,7 +36,7 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
 async def init_db() -> None:
     """Create all tables on first startup (before Alembic takes over)."""
     # Import all models so Base.metadata is populated
-    from neuralflow.models import workspace, workflow, run, provider, mcp_server  # noqa: F401
+    from neuralflow.models import workspace, workflow, run, provider, mcp_server, memory, schedule  # noqa: F401
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)

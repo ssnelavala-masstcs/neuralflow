@@ -62,3 +62,48 @@ class LlmCallOut(BaseModel):
     created_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+# ── Debug / Replay schemas ────────────────────────────────────────────────────
+
+class ToolCallDetail(BaseModel):
+    id: str
+    name: str
+    source: str
+    input: dict[str, Any]
+    output: Any
+    error: str | None
+    latency_ms: int | None
+
+
+class LlmCallDetail(BaseModel):
+    id: str
+    model: str
+    call_index: int
+    messages: list[dict[str, Any]]
+    response_content: str
+    input_tokens: int
+    output_tokens: int
+    cost_usd: float
+    latency_ms: int | None
+    finish_reason: str | None
+    tool_calls: list[ToolCallDetail]
+
+
+class RunStepOut(BaseModel):
+    id: str
+    node_id: str
+    node_name: str
+    node_type: str
+    status: str
+    started_at: datetime | None
+    completed_at: datetime | None
+    duration_ms: int | None
+    cost_usd: float
+    input_tokens: int
+    output_tokens: int
+    output_data: dict[str, Any] | None
+    error_message: str | None
+    llm_call_count: int
+    tool_call_count: int
+    llm_calls: list[LlmCallDetail]

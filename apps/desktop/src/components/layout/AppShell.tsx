@@ -1,9 +1,13 @@
 import { useState, useEffect } from "react";
-import { Play, Settings, Cpu, StopCircle } from "lucide-react";
+import { Play, Settings, Cpu, StopCircle, Code2, PanelRightOpen, PanelRightClose, LayoutGrid } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { Sidebar } from "./Sidebar";
 import { BottomPanel } from "./BottomPanel";
 import { Canvas } from "@/canvas/Canvas";
 import { RunModal } from "@/components/run/RunModal";
+import { ExportModal } from "@/components/export/ExportModal";
+import { PropertiesPanel } from "@/components/properties/PropertiesPanel";
+import { ProviderSettingsModal } from "@/components/settings/ProviderSettingsModal";
 import { useWorkflowStore } from "@/stores/workflowStore";
 import { useRunStore } from "@/stores/runStore";
 import { useSettingsStore } from "@/stores/settingsStore";
@@ -11,8 +15,15 @@ import { workflowsApi } from "@/api/workflows";
 
 const DEFAULT_WORKSPACE_ID = "default";
 
-export function AppShell() {
+interface AppShellProps {
+  onNavigateTemplates?: () => void;
+}
+
+export function AppShell({ onNavigateTemplates }: AppShellProps) {
   const [runModalOpen, setRunModalOpen] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [showProviderSettings, setShowProviderSettings] = useState(false);
+  const [showProperties, setShowProperties] = useState(false);
   const { loadWorkflows, activeWorkflowId, workflows } = useWorkflowStore();
   const { runStatus, cancelRun } = useRunStore();
   const { sidecarReady, setSidecarReady } = useSettingsStore();
@@ -76,7 +87,39 @@ export function AppShell() {
               Run
             </button>
           )}
-          <button className="rounded-md p-1.5 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors" title="Settings">
+          <button
+            onClick={() => setShowExportModal(true)}
+            disabled={!activeWorkflowId}
+            className="flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-accent disabled:opacity-50 transition-colors"
+            title="Export code"
+          >
+            <Code2 className="h-3.5 w-3.5" />
+            Export
+          </button>
+          <button
+            onClick={() => onNavigateTemplates?.()}
+            className="flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+            title="Browse templates"
+          >
+            <LayoutGrid className="h-3.5 w-3.5" />
+            Templates
+          </button>
+          <button
+            onClick={() => setShowProperties(!showProperties)}
+            className={cn(
+              "flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-xs font-medium transition-colors",
+              showProperties ? "bg-accent text-foreground border-primary" : "text-muted-foreground hover:text-foreground hover:bg-accent"
+            )}
+            title="Toggle properties panel"
+          >
+            {showProperties ? <PanelRightClose className="h-3.5 w-3.5" /> : <PanelRightOpen className="h-3.5 w-3.5" />}
+            Properties
+          </button>
+          <button
+            onClick={() => setShowProviderSettings(true)}
+            className="rounded-md p-1.5 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+            title="Settings"
+          >
             <Settings className="h-4 w-4" />
           </button>
         </div>
@@ -95,9 +138,15 @@ export function AppShell() {
             <BottomPanel />
           </div>
         </div>
+        {/* Right sidebar: Properties Panel */}
+        {showProperties && <PropertiesPanel onClose={() => setShowProperties(false)} />}
       </div>
 
       <RunModal open={runModalOpen} onClose={() => setRunModalOpen(false)} />
+      {showExportModal && activeWorkflowId && (
+        <ExportModal workflowId={activeWorkflowId} onClose={() => setShowExportModal(false)} />
+      )}
+      <ProviderSettingsModal open={showProviderSettings} onClose={() => setShowProviderSettings(false)} />
     </div>
   );
 }

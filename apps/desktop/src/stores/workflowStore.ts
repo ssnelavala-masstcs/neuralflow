@@ -1,7 +1,7 @@
 import { applyEdgeChanges, applyNodeChanges, type Edge, type Node, type NodeChange, type EdgeChange } from "@xyflow/react";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
-import type { CanvasData, Workflow, Workspace } from "@/types/workflow";
+import type { CanvasData, ExecutionMode, Workflow, Workspace } from "@/types/workflow";
 import { workflowsApi } from "@/api/workflows";
 
 interface WorkflowState {
@@ -21,6 +21,7 @@ interface WorkflowState {
   onEdgesChange: (changes: EdgeChange[]) => void;
   addNode: (node: Node) => void;
   updateNodeData: (id: string, data: Partial<Node["data"]>) => void;
+  updateExecutionMode: (mode: ExecutionMode) => Promise<void>;
   saveCanvas: () => Promise<void>;
   loadWorkflows: (workspaceId: string) => Promise<void>;
   createWorkflow: (name: string) => Promise<Workflow>;
@@ -77,6 +78,16 @@ export const useWorkflowStore = create<WorkflowState>()(
           s.isDirty = true;
         }
       }),
+
+    updateExecutionMode: async (mode) => {
+      const { activeWorkflowId } = get();
+      if (!activeWorkflowId) return;
+      await workflowsApi.update(activeWorkflowId, { execution_mode: mode });
+      set((s) => {
+        const wf = s.workflows.find((w) => w.id === activeWorkflowId);
+        if (wf) wf.execution_mode = mode;
+      });
+    },
 
     saveCanvas: async () => {
       const { activeWorkflowId, nodes, edges } = get();

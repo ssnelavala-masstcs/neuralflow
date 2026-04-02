@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { ChevronRight, PlusCircle, Workflow } from "lucide-react";
 import { NodePalette } from "@/components/palette/NodePalette";
+import { ExecutionModeSelector } from "@/components/properties/ExecutionModeSelector";
 import { useWorkflowStore } from "@/stores/workflowStore";
 import { cn } from "@/lib/utils";
 
 export function Sidebar() {
-  const { workflows, activeWorkflowId, setActiveWorkflow, createWorkflow } = useWorkflowStore();
+  const { workflows, activeWorkflowId, setActiveWorkflow, createWorkflow, updateExecutionMode } = useWorkflowStore();
+  const activeWorkflow = workflows.find((w) => w.id === activeWorkflowId);
   const [creatingName, setCreatingName] = useState("");
   const [showCreate, setShowCreate] = useState(false);
 
@@ -62,6 +64,19 @@ export function Sidebar() {
           </button>
         ))}
       </div>
+
+      {/* Execution mode */}
+      {activeWorkflow && (
+        <div className="border-t border-border">
+          <div className="px-3 py-1.5">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Execution Mode</span>
+          </div>
+          <ExecutionModeSelector
+            mode={activeWorkflow.execution_mode}
+            onChange={updateExecutionMode}
+          />
+        </div>
+      )}
 
       {/* Node palette */}
       <div className="border-t border-border overflow-y-auto max-h-80">

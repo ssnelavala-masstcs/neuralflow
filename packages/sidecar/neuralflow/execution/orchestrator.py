@@ -45,16 +45,19 @@ class Orchestrator:
             # Build provider key map from DB
             provider_key_map = await self._build_provider_key_map()
 
-            # Dispatch to executor
-            if wf.execution_mode in ("sequential", "parallel"):
-                from neuralflow.execution.sequential_executor import SequentialExecutor
-                executor = SequentialExecutor(db=self.db, run_id=self.run_id, emitter=self.emitter)
-                result = await executor.execute(workflow, input_data, provider_key_map)
+            # Dispatch to executor based on resolved execution_mode
+            mode = workflow.execution_mode
+            if mode == "hierarchical":
+                from neuralflow.execution.crewai_executor import CrewAIExecutor
+                executor = CrewAIExecutor(db=self.db, run_id=self.run_id, emitter=self.emitter)
+            elif mode == "state_machine":
+                from neuralflow.execution.langgraph_executor import LangGraphExecutor
+                executor = LangGraphExecutor(db=self.db, run_id=self.run_id, emitter=self.emitter)
             else:
-                # Phase 2: CrewAI / LangGraph — fall back to sequential for now
+                # sequential | parallel
                 from neuralflow.execution.sequential_executor import SequentialExecutor
                 executor = SequentialExecutor(db=self.db, run_id=self.run_id, emitter=self.emitter)
-                result = await executor.execute(workflow, input_data, provider_key_map)
+            result = await executor.execute(workflow, input_data, provider_key_map)
 
             run.status = "complete"
             run.output_data = json.dumps(result)

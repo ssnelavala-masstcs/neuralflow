@@ -96,10 +96,55 @@ class SequentialExecutor:
                     await self.db.flush()
                 continue
 
+            if node.type == "human":
+                await self._handle_human_node(node, outputs, workflow)
+                outputs[node_id] = outputs.get(node_id)
+                continue
+
             # Unknown/unhandled node types — pass through
             outputs[node_id] = None
 
         return {"output": final_output}
+
+    async def _handle_human_node(
+        self,
+        node: NodeSpec,
+        outputs: dict,
+        workflow: "AnalyzedWorkflow",
+    ) -> None:
+        from neuralflow.execution.hitl import cleanup_run, create_resume_gate, get_resume_input
+        from neuralflow.models.run import Run
+        from datetime import datetime, timezone
+
+        prompt = node.data.get("prompt", "Please review and provide input.")
+
+        # Mark the run as awaiting input
+        run = await self.db.get(Run, self.run_id)
+        if run:
+            run.status = "awaiting_input"
+            await self.db.commit()
+
+        # Emit SSE event so the frontend can show the approval UI
+        await self.emitter.emit("awaiting_input", node_id=node.id, node_name=node.name, prompt=prompt)
+
+        gate = create_resume_gate(self.run_id)
+        try:
+            # Wait up to 24 hours for human input
+            await asyncio.wait_for(gate.wait(), timeout=86400)
+        except asyncio.TimeoutError:
+            cleanup_run(self.run_id)
+            raise TimeoutError(f"HumanNode '{node.name}' timed out waiting for input")
+
+        human_input = get_resume_input(self.run_id)
+
+        # Resume the run
+        if run:
+            run.status = "running"
+            await self.db.commit()
+
+        await self.emitter.emit("human_input_received", node_id=node.id, input=human_input)
+
+        outputs[node.id] = human_input.get("message", str(human_input))
 
 
 def _build_initial_messages(input_data: dict | None) -> list[dict]:

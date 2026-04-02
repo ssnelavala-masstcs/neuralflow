@@ -12,6 +12,8 @@ export function AgentNode({ id, data, selected }: NodeProps) {
     running: "border-blue-500 shadow-blue-500/30 shadow-lg",
     complete: "border-green-500",
     error: "border-red-500",
+    pending: "",
+    skipped: "",
   }[nodeStatus ?? ""] ?? "";
 
   return (

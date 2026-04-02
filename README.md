@@ -9,6 +9,8 @@
 [![Built with Tauri](https://img.shields.io/badge/Built%20with-Tauri%20v2-orange)](https://tauri.app)
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11+-blue)](https://python.org)
 [![Phase 1 Complete](https://img.shields.io/badge/Phase%201-Complete-brightgreen)](docs/PRD.md)
+[![Phase 2 Complete](https://img.shields.io/badge/Phase%202-Complete-brightgreen)](docs/PRD.md)
+[![Phase 3 Complete](https://img.shields.io/badge/Phase%203-Complete-brightgreen)](docs/PRD.md)
 
 > Build multi-agent AI workflows by drawing them. Runs entirely on your machine.
 
@@ -43,6 +45,7 @@ It bridges the gap that every existing tool leaves open:
 - Connect nodes with typed edges (data, control, conditional)
 - Auto-layout, undo/redo, copy/paste, multi-select
 - Mini-map for large workflows
+- **Properties Panel**: Right sidebar for inline editing of any node's configuration (model, prompt, temperature, tools, conditions, etc.)
 
 ### Any Model, Any Provider
 Powered by [LiteLLM](https://github.com/BerriAI/litellm) — one interface to all of them:
@@ -60,11 +63,13 @@ Powered by [LiteLLM](https://github.com/BerriAI/litellm) — one interface to al
 | LM Studio (local) | Any GGUF model |
 | Any OpenAI-compatible API | Custom base URL |
 
+**Provider Settings UI**: Add, edit, test, and remove providers with a visual modal. API keys stored securely in your OS keychain.
+
 ### Multi-Agent Orchestration
-- **Sequential** — agents run one after another (Phase 1, live)
-- **Parallel** — independent branches run concurrently (Phase 1, live)
-- **Hierarchical** — manager agent delegates to workers via [CrewAI](https://github.com/crewAIInc/crewAI) (Phase 2)
-- **State Machine** — loops and conditional branching via [LangGraph](https://github.com/langchain-ai/langgraph) (Phase 2)
+- **Sequential** — agents run one after another
+- **Parallel** — independent branches run concurrently
+- **Hierarchical** — manager agent delegates to workers via [CrewAI](https://github.com/crewAIInc/crewAI)
+- **State Machine** — loops and conditional branching via [LangGraph](https://github.com/langchain-ai/langgraph)
 
 ### Built-in Tools
 - Web search (Serper / Tavily / DuckDuckGo)
@@ -81,8 +86,24 @@ Powered by [LiteLLM](https://github.com/BerriAI/litellm) — one interface to al
 
 ### Cost Tracking
 - Per-node, per-agent, per-run cost breakdown from LiteLLM usage data
-- Cumulative cost charts by day / workflow / model (Phase 2)
-- Budget alerts before running (Phase 2)
+- Cumulative cost charts by day / workflow / model with SVG bar charts
+- Per-model cost table with CSV export
+
+### Debugging & Observability
+- **Step-through Debug Replay**: Load any past run, inspect LLM calls and tool results, re-run from any step
+- **Run History**: Persistent log of all runs with status, duration, and cost
+- **Version History**: Snapshot your workflow at any point, rollback to previous versions
+- **Visual Diff Viewer**: Compare two workflow versions side-by-side or in unified view, see exactly what nodes/edges changed
+
+### Template Gallery
+- **5 Built-in Templates**: Research Assistant, Content Writer, Code Reviewer, Data Analyzer, Web Scraper
+- **Community Templates**: Browse, search, and import templates shared via GitHub Gist
+- **Tag Filtering**: Filter templates by category (research, content, devtools, data, etc.)
+
+### Plugin System
+- Install custom node types and tools via Python packages with `neuralflow_plugins` entry points
+- Plugin browser shows installed plugins, their node types, tools, and load status
+- Hot-reload plugins without restarting the app
 
 ### Privacy First
 - API keys stored in **OS keychain** (macOS Keychain, Windows Credential Manager, Linux libsecret) — never on disk
@@ -144,8 +165,9 @@ curl -X POST "http://localhost:7411/api/templates/research-assistant.json/import
 │  ┌───────────────────────────────────────────┐  │
 │  │         React Frontend (Webview)          │  │
 │  │                                           │  │
-│  │   Canvas (React Flow) │ UI (shadcn/ui)   │  │
+│  │   Canvas (React Flow) │ UI (Tailwind)    │  │
 │  │   State (Zustand)     │ API Client        │  │
+│  │   Properties Panel    │ Template Gallery  │  │
 │  └───────────────────────────────────────────┘  │
 │                                                  │
 │  ┌───────────────────────────────────────────┐  │
@@ -160,14 +182,18 @@ curl -X POST "http://localhost:7411/api/templates/research-assistant.json/import
 │                                                    │
 │  Execution Engine                                  │
 │  ├── Sequential/Parallel Executor  ✅              │
-│  ├── CrewAI Executor (hierarchical)  🔜 Phase 2   │
-│  └── LangGraph Executor (state machines) 🔜 P2   │
+│  ├── CrewAI Executor (hierarchical)  ✅            │
+│  └── LangGraph Executor (state machines) ✅        │
 │                                                    │
 │  LiteLLM (in-process, all model providers) ✅      │
 │  MCP Client (stdio · SSE · HTTP)  ✅               │
 │  Built-in Tools (search, file, HTTP, calc) ✅      │
 │  SQLite + SQLAlchemy (all persistence)  ✅         │
-│  APScheduler (triggers)  🔜 Phase 2               │
+│  APScheduler (triggers)  ✅                        │
+│  Plugin Loader (entry points)  ✅                  │
+│  Code Exporter (CrewAI · LangGraph) ✅             │
+│  Replay Engine (step-through debug) ✅             │
+│  Memory + RAG (chunking · embedding · search) ✅   │
 └───────────────────────────────────────────────────┘
 ```
 
@@ -194,7 +220,18 @@ neuralflow/
 │       ├── src-tauri/        # Rust backend (keychain IPC, Tauri config)
 │       └── src/              # React frontend
 │           ├── canvas/       # React Flow nodes, edges, canvas logic
-│           ├── components/   # UI components (layout, palette, run log)
+│           ├── components/   # UI components
+│           │   ├── cost/     # Cost dashboard with charts
+│           │   ├── debug/    # Run history & step debugger
+│           │   ├── export/   # Code export modal (CrewAI/LangGraph)
+│           │   ├── layout/   # AppShell, Sidebar, BottomPanel
+│           │   ├── palette/  # Node drag palette
+│           │   ├── plugins/  # Plugin browser
+│           │   ├── properties/ # PropertiesPanel + node forms
+│           │   ├── run/      # Run log & run modal
+│           │   ├── settings/ # Provider settings modal
+│           │   ├── sharing/  # Share modal, template gallery
+│           │   └── version/  # Version history + visual diff viewer
 │           ├── stores/       # Zustand state stores
 │           ├── api/          # FastAPI client
 │           └── types/        # TypeScript type definitions
@@ -202,10 +239,13 @@ neuralflow/
 ├── packages/
 │   └── sidecar/              # Python FastAPI backend
 │       └── neuralflow/
-│           ├── api/          # FastAPI routers (workflows, runs, providers, mcp, tools, templates)
-│           ├── execution/    # Orchestrator, sequential executor, agent runner, SSE emitter
+│           ├── api/          # FastAPI routers
+│           ├── execution/    # Orchestrator, executors, code exporter, replay engine
 │           ├── tools/        # Built-in tool implementations + registry
 │           ├── mcp/          # MCP connection pool (stdio + SSE/HTTP)
+│           ├── memory/       # RAG pipeline (chunking, embedding, search)
+│           ├── plugins/      # Plugin loader (entry points)
+│           ├── scheduling/   # APScheduler integration
 │           ├── models/       # SQLAlchemy ORM models
 │           └── schemas/      # Pydantic request/response schemas
 │
@@ -252,23 +292,24 @@ neuralflow/
 - [x] 5 starter templates
 - [x] OS keychain API key storage
 
-### Phase 2 — Power Features
-- [ ] PropertiesPanel: inline editing of agent model/prompt/temperature
-- [ ] Provider settings modal UI
-- [ ] CrewAI hierarchical executor
-- [ ] LangGraph state machine executor
-- [ ] Step-through debug replay
-- [ ] Memory nodes + RAG pipeline (sqlite-vec)
-- [ ] Cost dashboard with charts and alerts
-- [ ] Cron + webhook triggers
-- [ ] Human-in-the-loop nodes
+### Phase 2 — Power Features ✅ Complete
+- [x] PropertiesPanel: inline editing of agent model/prompt/temperature
+- [x] Provider settings modal UI
+- [x] CrewAI hierarchical executor
+- [x] LangGraph state machine executor
+- [x] Step-through debug replay
+- [x] Memory nodes + RAG pipeline (sqlite-vec)
+- [x] Cost dashboard with charts and alerts
+- [x] Cron + webhook triggers
+- [x] Human-in-the-loop nodes
 
-### Phase 3 — Ecosystem
-- [ ] Export to CrewAI Python code
-- [ ] Export to LangGraph Python code
-- [ ] Workflow version history + visual diff
-- [ ] Plugin API (custom node types)
-- [ ] Community template gallery
+### Phase 3 — Ecosystem ✅ Complete
+- [x] Export to CrewAI Python code
+- [x] Export to LangGraph Python code
+- [x] Workflow version history + visual diff
+- [x] Plugin API (custom node types)
+- [x] Community template gallery
+- [x] Workflow sharing via GitHub Gist
 
 ### Phase 4 — Scale
 - [ ] Evaluation framework (A/B test workflows)

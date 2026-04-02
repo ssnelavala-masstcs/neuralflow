@@ -32,6 +32,10 @@ class AnalyzedWorkflow:
     topo_order: list[str] = field(default_factory=list)
     # node_id → list of predecessor node IDs
     predecessors: dict[str, list[str]] = field(default_factory=dict)
+    # Detected structural properties (used by orchestrator for auto-dispatch)
+    has_cycles: bool = False       # True → LangGraph state machine
+    has_manager: bool = False      # True → CrewAI hierarchical
+    has_router_nodes: bool = False  # True → conditional branching
 
 
 def analyze(canvas_data: dict[str, Any], execution_mode: str = "sequential") -> AnalyzedWorkflow:
@@ -79,14 +83,33 @@ def analyze(canvas_data: dict[str, Any], execution_mode: str = "sequential") -> 
             if in_degree[successor] == 0:
                 queue.append(successor)
 
+    has_cycles = len(topo) < len(nodes)
     # If cycle detected, fall back to original node order
-    if len(topo) < len(nodes):
+    if has_cycles:
         topo = [n.id for n in nodes]
+
+    has_manager = any(
+        n.type == "agent" and n.data.get("allowDelegation", False) for n in nodes
+    )
+    has_router_nodes = any(n.type == "router" for n in nodes)
+
+    # Auto-detect execution_mode if caller passed "auto" or empty string
+    resolved_mode = execution_mode
+    if execution_mode in ("auto", "", None):
+        if has_cycles or has_router_nodes:
+            resolved_mode = "state_machine"
+        elif has_manager:
+            resolved_mode = "hierarchical"
+        else:
+            resolved_mode = "sequential"
 
     return AnalyzedWorkflow(
         nodes=nodes,
         edges=edges,
-        execution_mode=execution_mode,
+        execution_mode=resolved_mode,
         topo_order=topo,
         predecessors=predecessors,
+        has_cycles=has_cycles,
+        has_manager=has_manager,
+        has_router_nodes=has_router_nodes,
     )
