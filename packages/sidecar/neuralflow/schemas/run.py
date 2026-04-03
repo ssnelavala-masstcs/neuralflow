@@ -1,13 +1,15 @@
 from datetime import datetime
 from typing import Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class RunCreate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     workflow_id: str
     input_data: dict[str, Any] | None = None
-    trigger_type: str = "manual"
+    trigger_type: str = Field(default="manual", pattern=r"^[a-zA-Z0-9_-]+$")
 
 
 class RunOut(BaseModel):

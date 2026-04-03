@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Core Concepts — NeuralFlow Docs</title>
+  <meta name="description" content="Understand NeuralFlow's execution modes, memory and RAG pipeline, MCP integration, human-in-the-loop pausing, cost tracking, and plugin system." />
+  <link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+
+<nav class="nav">
+  <a href="../index.html" class="nav-logo">
+    <div class="nav-logo-mark">⚡</div>
+    NeuralFlow
+  </a>
+  <ul class="nav-links">
+    <li><a href="getting-started.html">Docs</a></li>
+    <li><a href="nodes.html">Nodes</a></li>
+    <li><a href="concepts.html" class="active">Concepts</a></li>
+    <li><a href="api.html">API</a></li>
+  </ul>
+  <div class="nav-actions">
+    <button class="btn-theme" id="theme-btn" aria-label="Toggle theme">☀️</button>
+    <a href="https://github.com/ssnelavala-masstcs/neuralflow" class="btn-gh" target="_blank" rel="noopener">GitHub</a>
+    <button class="hamburger" aria-label="Menu" aria-expanded="false">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+</nav>
+
+<div class="page-wrap">
+
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-title">Core Concepts</div>
+      <ul class="sidebar-nav">
+        <li><a href="#execution-modes">Execution Modes</a></li>
+        <li><a href="#memory-rag">Memory &amp; RAG</a></li>
+        <li><a href="#mcp-integration">MCP Integration</a></li>
+        <li><a href="#human-in-the-loop">Human-in-the-Loop</a></li>
+        <li><a href="#cost-tracking">Cost Tracking</a></li>
+        <li><a href="#plugin-system">Plugin System</a></li>
+      </ul>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-title">Other Guides</div>
+      <ul class="sidebar-nav">
+        <li><a href="getting-started.html">Getting Started</a></li>
+        <li><a href="nodes.html">Node Reference</a></li>
+        <li><a href="api.html">API Reference</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <main class="main-content">
+
+    <h1>Core Concepts</h1>
+    <p class="page-lead">
+      This page explains the foundational ideas behind NeuralFlow: how it runs graphs, where it
+      stores memory, how it integrates with external tools via MCP, and how it accounts for every
+      token spent.
+    </p>
+
+    <!-- ─── Execution Modes ─────────────────────────────────────────── -->
+    <h2 id="execution-modes">Execution Modes</h2>
+
+    <p>
+      NeuralFlow supports four execution modes. Each mode determines how the orchestrator
+      traverses the graph and delegates work to agent nodes. Select the mode in the workflow
+      Settings panel or let NeuralFlow choose automatically.
+    </p>
+
+    <h3>Sequential</h3>
+    <p>
+      The orchestrator performs a topological sort of the graph and executes nodes left-to-right
+      in dependency order. A node runs only after all its upstream predecessors have completed.
+      This is the simplest mode and works for any acyclic graph.
+    </p>
+    <ul>
+      <li>Nodes with no dependencies between them run in parallel within the same topological
+          level.</li>
+      <li>The executor is a plain Python <code>asyncio</code> task runner — no additional
+          framework dependency.</li>
+      <li>Use Sequential for pipelines, chains, and most common workflows.</li>
+    </ul>
+
+    <h3>Hierarchical (CrewAI)</h3>
+    <p>
+      A manager AgentNode receives the initial task and dynamically delegates subtasks to
+      worker agents using CrewAI's hierarchical process. Workers report results back to the
+      manager, which synthesises a final answer.
+    </p>
+    <ul>
+      <li>Requires at least one node tagged as <code>role: manager</code> in the AgentNode
+          properties.</li>
+      <li>Worker nodes do not need explicit edges — CrewAI discovers them via role
+          declarations.</li>
+      <li>Best suited for research, writing, and complex decomposition tasks where the manager
+          can adaptively decide which workers to invoke.</li>
+    </ul>
+
+    <div class="callout callout-note">
+      <strong>Note:</strong> Hierarchical mode requires the <code>crewai</code> extra to be
+      installed. Run <code>uv sync --extra crewai</code> in <code>packages/sidecar</code>.
+    </div>
+
+    <h3>State Machine (LangGraph)</h3>
+    <p>
+      The graph is compiled into a LangGraph <code>StateGraph</code> where each node is a
+      graph node and each edge is a transition. Unlike Sequential mode, the State Machine mode
+      supports cycles — a node can loop back to an earlier node based on the output of a
+      RouterNode or a conditional edge.
+    </p>
+    <ul>
+      <li>State is persisted as a typed dict across all nodes in a run.</li>
+      <li>Cycles are explicitly supported, enabling retry loops and iterative refinement
+          patterns.</li>
+      <li>Use State Machine for agentic loops, self-correcting pipelines, and any workflow
+          that needs to revisit a node.</li>
+    </ul>
+
+    <div class="callout callout-warn">
+      <strong>Warning:</strong> Cyclic graphs in Sequential mode raise a
+      <code>CyclicGraphError</code> at run start. Use State Machine mode for any workflow
+      containing backward edges.
+    </div>
+
+    <h3>Auto</h3>
+    <p>
+      NeuralFlow inspects the graph shape at run time and picks the most appropriate mode:
+    </p>
+    <ul>
+      <li>If the graph is acyclic and contains no manager-role agent → <strong>Sequential</strong>.</li>
+      <li>If the graph contains a manager-role agent → <strong>Hierarchical</strong>.</li>
+      <li>If the graph contains cycles → <strong>State Machine</strong>.</li>
+    </ul>
+    <p>
+      Auto is the default for new workflows. Override it only when NeuralFlow's heuristic picks
+      the wrong mode.
+    </p>
+
+    <!-- ─── Memory & RAG ────────────────────────────────────────────── -->
+    <h2 id="memory-rag">Memory &amp; RAG</h2>
+
+    <p>
+      NeuralFlow includes a built-in retrieval-augmented generation (RAG) pipeline backed by
+      SQLite and <code>sqlite-vec</code>. No external vector database is required.
+    </p>
+
+    <h3>MemoryChunk table</h3>
+    <p>
+      Ingested documents are split into chunks and stored in the <code>memory_chunks</code> table
+      in the workspace SQLite database. Each row stores:
+    </p>
+    <ul>
+      <li><code>id</code> — UUID primary key</li>
+      <li><code>source</code> — original filename or URL</li>
+      <li><code>content</code> — the raw text of the chunk</li>
+      <li><code>embedding</code> — 1536-dimensional float32 vector (OpenAI
+          <code>text-embedding-3-small</code> by default)</li>
+      <li><code>metadata</code> — JSON blob with page number, section heading, and other
+          provenance fields</li>
+    </ul>
+
+    <h3>Ingest documents</h3>
+    <p>
+      Use the <code>POST /api/memory/ingest</code> endpoint or the Ingest button in the Memory
+      panel. Supported file formats: TXT, MD, PDF, and DOCX. The sidecar extracts text, chunks
+      it with a configurable window size (default 512 tokens, 64-token overlap), embeds each
+      chunk, and writes to SQLite.
+    </p>
+    <div class="code-wrap">
+      <button class="copy-btn">Copy</button>
+      <pre><code>curl -X POST http://127.0.0.1:7411/api/memory/ingest \
+  -F "file=@research-paper.pdf" \
+  -F "chunk_size=512" \
+  -F "overlap=64"</code></pre>
+    </div>
+
+    <h3>Semantic search</h3>
+    <p>
+      At query time, the sidecar embeds the query string and computes cosine similarity against
+      all stored vectors using <code>sqlite-vec</code>'s <code>vec_distance_cosine</code>
+      function. The top-k chunks (default k=5) are returned.
+    </p>
+    <p>
+      If the embedding model is unavailable (e.g., no API key), the search falls back to
+      SQLite's full-text search (FTS5) using keyword matching. Set
+      <code>NEURALFLOW_MEMORY_FALLBACK=fts</code> to force keyword mode.
+    </p>
+
+    <h3>Use memory in a workflow</h3>
+    <p>
+      Add a ToolNode with <code>tool_name: memory_search</code> and connect it upstream of any
+      AgentNode that needs context. The tool accepts a <code>query</code> field and injects the
+      retrieved chunks into the AgentNode's context window automatically.
+    </p>
+
+    <!-- ─── MCP Integration ─────────────────────────────────────────── -->
+    <h2 id="mcp-integration">MCP Integration</h2>
+
+    <p>
+      The Model Context Protocol (MCP) is an open standard for exposing tools and resources to
+      LLM agents. NeuralFlow acts as an MCP client and can connect to any compliant MCP server.
+    </p>
+
+    <h3>Transports</h3>
+    <p>NeuralFlow supports two MCP transport mechanisms:</p>
+    <ul>
+      <li>
+        <strong>stdio</strong> — the sidecar spawns the MCP server as a subprocess and
+        communicates over stdin/stdout. This is the most common option for local servers
+        distributed as npm or pip packages.
+      </li>
+      <li>
+        <strong>SSE</strong> — the sidecar connects to a long-running MCP server over HTTP
+        Server-Sent Events. Use this for remote or persistent MCP services.
+      </li>
+    </ul>
+
+    <h3>Connection pool</h3>
+    <p>
+      The sidecar maintains a connection pool in
+      <code>packages/sidecar/neuralflow/mcp/</code>. Connections are keyed by the
+      (transport, command/url) pair and reused across nodes within a run. Idle connections are
+      closed after 5 minutes of inactivity.
+    </p>
+
+    <h3>Tool registry</h3>
+    <p>
+      When a McpNode or AgentNode connects to an MCP server for the first time, the sidecar
+      fetches the server's capability manifest and registers its tools in the global tool
+      registry. Registered MCP tools appear alongside built-in tools in the AgentNode's tool
+      picker in the Properties panel.
+    </p>
+
+    <h3>MCP tools in AgentNode</h3>
+    <p>
+      To let an AgentNode call MCP tools during inference, add the tool names to the
+      <code>tools</code> list in the AgentNode's properties. The sidecar converts each MCP tool
+      schema into the provider-specific function-calling format (OpenAI, Anthropic, etc.) and
+      handles round-trips transparently.
+    </p>
+
+    <div class="callout callout-tip">
+      <strong>Tip:</strong> Use the filesystem MCP server to give agents read/write access to
+      local files without writing custom tool code:
+    </div>
+    <div class="code-wrap">
+      <button class="copy-btn">Copy</button>
+      <pre><code><span class="token-comment"># McpNode — transport: stdio</span>
+command: npx -y @modelcontextprotocol/server-filesystem /home/user/projects
+tool_name: read_file</code></pre>
+    </div>
+
+    <!-- ─── Human-in-the-Loop ──────────────────────────────────────── -->
+    <h2 id="human-in-the-loop">Human-in-the-Loop</h2>
+
+    <p>
+      NeuralFlow's HumanNode implements a pause-and-resume pattern that lets an operator review
+      intermediate results and provide input or approval before execution continues.
+    </p>
+
+    <h3>How the pause works</h3>
+    <ol>
+      <li>The executor reaches a HumanNode and immediately suspends the run.</li>
+      <li>The sidecar emits an <code>awaiting_input</code> SSE event on the run's stream
+          (<code>GET /api/runs/{id}/stream</code>) with the node's <code>prompt</code> field.</li>
+      <li>The frontend receives the event, highlights the paused HumanNode on the canvas, and
+          opens a modal dialog showing the prompt.</li>
+      <li>The operator types a response (or clicks Approve/Reject for <code>approval</code>
+          type) and submits.</li>
+      <li>The frontend calls <code>POST /api/runs/{id}/resume</code> with the submitted text.</li>
+      <li>The sidecar unblocks the run, injects the response as the HumanNode's output, and
+          continues execution from the next node in the graph.</li>
+    </ol>
+
+    <h3>Timeout behaviour</h3>
+    <p>
+      If <code>timeout_s</code> is set to a non-zero value on the HumanNode, the run is
+      automatically cancelled with a <code>timed_out</code> status if no resume call arrives
+      within that duration. Set <code>timeout_s: 0</code> (the default) to wait indefinitely.
+    </p>
+
+    <div class="callout callout-note">
+      <strong>Note:</strong> Paused runs persist across sidecar restarts. The pause state is
+      stored in the SQLite <code>runs</code> table as status <code>awaiting_input</code>. On
+      restart, the sidecar re-registers the pending SSE subscription so the frontend can
+      reconnect seamlessly.
+    </div>
+
+    <!-- ─── Cost Tracking ──────────────────────────────────────────── -->
+    <h2 id="cost-tracking">Cost Tracking</h2>
+
+    <p>
+      Every LLM inference call made by an AgentNode records token counts and cost in USD.
+      Cost data is used to populate the Cost Dashboard and to enforce optional cost alerts.
+    </p>
+
+    <h3>How costs are recorded</h3>
+    <p>
+      NeuralFlow uses LiteLLM's in-process cost calculation. After each completion, LiteLLM
+      returns a <code>UsageData</code> object containing:
+    </p>
+    <ul>
+      <li><code>prompt_tokens</code> — tokens in the input (system prompt + context + user message)</li>
+      <li><code>completion_tokens</code> — tokens in the model's output</li>
+      <li><code>cost_usd</code> — computed from LiteLLM's price table for the model</li>
+    </ul>
+    <p>
+      These values are written to the <code>node_runs</code> table and rolled up into the parent
+      <code>runs</code> record.
+    </p>
+
+    <h3>Analytics API</h3>
+    <p>
+      Retrieve aggregated cost data via the Analytics API. The endpoint supports filtering by
+      time window and workflow.
+    </p>
+    <div class="code-wrap">
+      <button class="copy-btn">Copy</button>
+      <pre><code>GET /api/analytics/costs?days=30&amp;workflow_id=&lt;uuid&gt;</code></pre>
+    </div>
+    <p>
+      The response includes a per-day breakdown, a per-model breakdown, and a per-workflow
+      breakdown. All costs are in USD.
+    </p>
+
+    <h3>Cost alerts</h3>
+    <p>
+      Set a <code>cost_alert_usd</code> threshold in the workspace settings. When a single run
+      exceeds the threshold, the sidecar emits a <code>cost_alert</code> SSE event and the
+      frontend displays a warning banner. The run is not cancelled — alerts are advisory only.
+    </p>
+
+    <!-- ─── Plugin System ──────────────────────────────────────────── -->
+    <h2 id="plugin-system">Plugin System</h2>
+
+    <p>
+      NeuralFlow's plugin system lets you add custom node types and tools without modifying the
+      core codebase. Plugins are standard Python packages that declare a
+      <code>neuralflow_plugins</code> entry point group.
+    </p>
+
+    <h3>Create a plugin package</h3>
+
+    <p>
+      A minimal plugin contains a <code>pyproject.toml</code> entry point declaration and a
+      Python module that exports a <code>register()</code> function.
+    </p>
+
+    <div class="code-wrap">
+      <button class="copy-btn">Copy</button>
+      <pre><code><span class="token-comment"># pyproject.toml</span>
+[project.entry-points."neuralflow_plugins"]
+my_plugin = "my_plugin.plugin:register"</code></pre>
+    </div>
+
+    <div class="code-wrap">
+      <button class="copy-btn">Copy</button>
+      <pre><code><span class="token-comment"># my_plugin/plugin.py</span>
+<span class="token-keyword">from</span> neuralflow.plugins <span class="token-keyword">import</span> PluginManifest, register_tool
+
+<span class="token-keyword">def</span> <span class="token-function">register</span>(manifest: PluginManifest) -> <span class="token-keyword">None</span>:
+    manifest.add_tool(
+        name=<span class="token-string">"my_tool"</span>,
+        description=<span class="token-string">"Does something useful."</span>,
+        parameters={<span class="token-string">"query"</span>: {<span class="token-string">"type"</span>: <span class="token-string">"string"</span>}},
+        handler=my_tool_handler,
+    )</code></pre>
+    </div>
+
+    <h3>Install a plugin</h3>
+    <div class="code-wrap">
+      <button class="copy-btn">Copy</button>
+      <pre><code>cd packages/sidecar
+uv pip install /path/to/my-plugin</code></pre>
+    </div>
+
+    <h3>PluginManifest API</h3>
+    <p>
+      The <code>PluginManifest</code> object passed to <code>register()</code> exposes two
+      registration methods:
+    </p>
+    <ul>
+      <li><code>manifest.add_tool(name, description, parameters, handler)</code> — registers a
+          callable as a built-in tool. The tool appears in the ToolNode picker and can be
+          attached to AgentNodes.</li>
+      <li><code>manifest.add_node_type(type_id, schema, executor_class)</code> — registers a
+          custom node type. The type appears in the node palette on the canvas and its
+          executor class is called during runs.</li>
+    </ul>
+
+    <h3>Hot reload</h3>
+    <p>
+      In development, the sidecar watches the plugin entry points at startup and re-imports
+      changed modules when the <code>--reload</code> flag is active (uvicorn hot reload).
+      In production builds, restart the sidecar after installing or updating a plugin.
+    </p>
+
+    <div class="callout callout-note">
+      <strong>Note:</strong> Plugins run in the same process as the sidecar. A plugin that
+      raises an unhandled exception during <code>register()</code> will prevent the sidecar
+      from starting. Check the sidecar log for the full traceback.
+    </div>
+
+  </main>
+</div>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <h3>⚡ NeuralFlow</h3>
+      <p>Visual AI agent orchestration.<br>Local-first. Any model. No Docker.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Docs</h4>
+      <ul>
+        <li><a href="getting-started.html">Getting Started</a></li>
+        <li><a href="nodes.html">Node Reference</a></li>
+        <li><a href="concepts.html">Core Concepts</a></li>
+        <li><a href="api.html">API Reference</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Project</h4>
+      <ul>
+        <li><a href="https://github.com/ssnelavala-masstcs/neuralflow" target="_blank" rel="noopener">GitHub</a></li>
+        <li><a href="https://github.com/ssnelavala-masstcs/neuralflow/issues" target="_blank" rel="noopener">Issues</a></li>
+        <li><a href="https://github.com/ssnelavala-masstcs/neuralflow/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Contributing</a></li>
+        <li><a href="https://github.com/ssnelavala-masstcs/neuralflow/blob/main/LICENSE" target="_blank" rel="noopener">License (Apache 2.0)</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Community</h4>
+      <ul>
+        <li><a href="https://github.com/ssnelavala-masstcs/neuralflow/discussions" target="_blank" rel="noopener">Discussions</a></li>
+        <li><a href="https://github.com/ssnelavala-masstcs/neuralflow/releases" target="_blank" rel="noopener">Releases</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>Apache 2.0 © Stanley Sujith Nelavala</span>
+    <span>Built with Tauri v2 · React 19 · FastAPI</span>
+  </div>
+</footer>
+
+<script src="../assets/nav.js"></script>
+</body>
+</html>

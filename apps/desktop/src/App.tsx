@@ -4,6 +4,7 @@ import { BarChart2, Workflow, LayoutGrid } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { CostDashboard } from "@/components/cost/CostDashboard";
 import { TemplateGallery } from "@/components/sharing/TemplateGallery";
+import { ErrorBoundary } from "@/components/error/ErrorBoundary";
 import { cn } from "@/lib/utils";
 
 type View = "canvas" | "cost" | "templates";
@@ -41,9 +42,11 @@ export default function App() {
 
         {/* Views */}
         <div className="flex-1 overflow-hidden">
-          {view === "canvas" && <AppShell onNavigateTemplates={() => setView("templates")} />}
-          {view === "templates" && <TemplateGallery />}
-          {view === "cost" && <CostDashboard />}
+          <ErrorBoundary>
+            {view === "canvas" && <AppShell onNavigateTemplates={() => setView("templates")} />}
+            {view === "templates" && <TemplateGallery />}
+            {view === "cost" && <CostDashboard />}
+          </ErrorBoundary>
         </div>
       </div>
     </ReactFlowProvider>

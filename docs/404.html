@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Page not found — NeuralFlow Docs</title>
+  <link rel="stylesheet" href="assets/style.css" />
+  <script>
+    // Redirect to index after 3 seconds
+    setTimeout(function () {
+      window.location.href = '/neuralflow/';
+    }, 3000);
+  </script>
+  <style>
+    .not-found {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      text-align: center;
+      padding: 24px;
+    }
+    .not-found-code {
+      font-size: 8rem;
+      font-weight: 800;
+      line-height: 1;
+      background: var(--grad-text);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 16px;
+    }
+    .not-found h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+    .not-found p {
+      color: var(--text-muted);
+      margin-bottom: 32px;
+      max-width: 400px;
+    }
+    .redirect-note {
+      font-size: 0.8rem;
+      color: var(--text-faint);
+      margin-top: 24px;
+    }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="index.html" class="nav-logo">
+    <div class="nav-logo-mark">⚡</div>
+    NeuralFlow
+  </a>
+</nav>
+
+<div class="not-found">
+  <div class="not-found-code">404</div>
+  <h1>Page not found</h1>
+  <p>The page you're looking for doesn't exist or has been moved.</p>
+  <a href="index.html" class="btn-primary">Go to documentation home</a>
+  <p class="redirect-note">Redirecting to the home page in 3 seconds…</p>
+</div>
+
+<script src="assets/nav.js"></script>
+</body>
+</html>

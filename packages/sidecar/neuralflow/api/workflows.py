@@ -3,6 +3,7 @@ import uuid
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import StreamingResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -15,6 +16,8 @@ from neuralflow.schemas.workflow import (
     WorkflowUpdate,
     WorkspaceCreate,
     WorkspaceOut,
+    WorkspaceUpdate,
+    WorkspaceExport,
 )
 
 router = APIRouter(prefix="/api")
@@ -30,7 +33,15 @@ async def list_workspaces(db: AsyncSession = Depends(get_db)):
 
 @router.post("/workspaces", response_model=WorkspaceOut, status_code=201)
 async def create_workspace(body: WorkspaceCreate, db: AsyncSession = Depends(get_db)):
-    ws = Workspace(id=str(uuid.uuid4()), name=body.name, description=body.description)
+    settings_json = None
+    if body.settings:
+        settings_json = json.dumps(body.settings)
+    ws = Workspace(
+        id=str(uuid.uuid4()),
+        name=body.name,
+        description=body.description,
+        settings=settings_json,
+    )
     db.add(ws)
     await db.commit()
     await db.refresh(ws)
@@ -42,6 +53,102 @@ async def get_workspace(ws_id: str, db: AsyncSession = Depends(get_db)):
     ws = await db.get(Workspace, ws_id)
     if not ws:
         raise HTTPException(404, "Workspace not found")
+    return ws
+
+
+@router.patch("/workspaces/{ws_id}", response_model=WorkspaceOut)
+async def update_workspace(ws_id: str, body: WorkspaceUpdate, db: AsyncSession = Depends(get_db)):
+    ws = await db.get(Workspace, ws_id)
+    if not ws:
+        raise HTTPException(404, "Workspace not found")
+    if body.name is not None:
+        ws.name = body.name
+    if body.description is not None:
+        ws.description = body.description
+    if body.settings is not None:
+        ws.settings = json.dumps(body.settings)
+    await db.commit()
+    await db.refresh(ws)
+    return ws
+
+
+@router.delete("/workspaces/{ws_id}", status_code=204)
+async def delete_workspace(ws_id: str, db: AsyncSession = Depends(get_db)):
+    ws = await db.get(Workspace, ws_id)
+    if not ws:
+        raise HTTPException(404, "Workspace not found")
+    await db.delete(ws)
+    await db.commit()
+
+
+@router.get("/workspaces/{ws_id}/export")
+async def export_workspace(ws_id: str, db: AsyncSession = Depends(get_db)):
+    """Export a workspace as a JSON file containing settings and all workflows."""
+    ws = await db.get(Workspace, ws_id)
+    if not ws:
+        raise HTTPException(404, "Workspace not found")
+
+    result = await db.execute(
+        select(Workflow).where(Workflow.workspace_id == ws_id).order_by(Workflow.created_at)
+    )
+    workflows = result.scalars().all()
+
+    settings = json.loads(ws.settings) if ws.settings else {}
+    export_data = WorkspaceExport(
+        workspace_name=ws.name,
+        workspace_description=ws.description,
+        settings=settings,
+        workflows=[
+            {
+                "name": wf.name,
+                "description": wf.description,
+                "tags": json.loads(wf.tags) if wf.tags else [],
+                "canvas_data": json.loads(wf.canvas_data) if isinstance(wf.canvas_data, str) else wf.canvas_data,
+                "execution_mode": wf.execution_mode,
+            }
+            for wf in workflows
+        ],
+    )
+
+    content = json.dumps(export_data.model_dump(), indent=2)
+
+    async def iter_content():
+        yield content
+
+    return StreamingResponse(
+        iter_content(),
+        media_type="application/json",
+        headers={"Content-Disposition": f'attachment; filename="{ws.name.replace(" ", "_")}.json"'},
+    )
+
+
+@router.post("/workspaces/import", response_model=WorkspaceOut, status_code=201)
+async def import_workspace(body: WorkspaceExport, db: AsyncSession = Depends(get_db)):
+    """Import a workspace from an exported JSON structure."""
+    ws = Workspace(
+        id=str(uuid.uuid4()),
+        name=body.workspace_name,
+        description=body.workspace_description,
+        settings=json.dumps(body.settings) if body.settings else None,
+    )
+    db.add(ws)
+    await db.commit()
+    await db.refresh(ws)
+
+    # Import workflows
+    for wf_data in body.workflows:
+        wf = Workflow(
+            id=str(uuid.uuid4()),
+            workspace_id=ws.id,
+            name=wf_data["name"],
+            description=wf_data.get("description"),
+            tags=json.dumps(wf_data.get("tags", [])),
+            canvas_data=json.dumps(wf_data.get("canvas_data", {"nodes": [], "edges": []})),
+            execution_mode=wf_data.get("execution_mode", "sequential"),
+        )
+        db.add(wf)
+
+    await db.commit()
     return ws
 
 

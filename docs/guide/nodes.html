@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Node Reference — NeuralFlow Docs</title>
+  <meta name="description" content="Reference for all 10 NeuralFlow node types: Agent, Router, Human, Tool, MCP, Input, Output, Transform, Filter, and Aggregator." />
+  <link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+
+<nav class="nav">
+  <a href="../index.html" class="nav-logo">
+    <div class="nav-logo-mark">⚡</div>
+    NeuralFlow
+  </a>
+  <ul class="nav-links">
+    <li><a href="getting-started.html">Docs</a></li>
+    <li><a href="nodes.html" class="active">Nodes</a></li>
+    <li><a href="concepts.html">Concepts</a></li>
+    <li><a href="api.html">API</a></li>
+  </ul>
+  <div class="nav-actions">
+    <button class="btn-theme" id="theme-btn" aria-label="Toggle theme">☀️</button>
+    <a href="https://github.com/ssnelavala-masstcs/neuralflow" class="btn-gh" target="_blank" rel="noopener">GitHub</a>
+    <button class="hamburger" aria-label="Menu" aria-expanded="false">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+</nav>
+
+<div class="page-wrap">
+
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-title">Node Reference</div>
+      <ul class="sidebar-nav">
+        <li><a href="#agent-nodes">Agent Nodes</a></li>
+        <li><a href="#agentnode">AgentNode</a></li>
+        <li><a href="#routernode">RouterNode</a></li>
+        <li><a href="#humannode">HumanNode</a></li>
+        <li><a href="#tool-nodes">Tool Nodes</a></li>
+        <li><a href="#toolnode">ToolNode</a></li>
+        <li><a href="#mcpnode">McpNode</a></li>
+        <li><a href="#data-nodes">Data Nodes</a></li>
+        <li><a href="#inputnode">InputNode</a></li>
+        <li><a href="#outputnode">OutputNode</a></li>
+        <li><a href="#transformnode">TransformNode</a></li>
+        <li><a href="#filternode">FilterNode</a></li>
+        <li><a href="#aggregatornode">AggregatorNode</a></li>
+      </ul>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-title">Other Guides</div>
+      <ul class="sidebar-nav">
+        <li><a href="getting-started.html">Getting Started</a></li>
+        <li><a href="concepts.html">Core Concepts</a></li>
+        <li><a href="api.html">API Reference</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <main class="main-content">
+
+    <h1>Node Reference</h1>
+    <p class="page-lead">
+      NeuralFlow has 10 node types arranged in 3 categories: <em>Agent Nodes</em> drive
+      reasoning and control flow, <em>Tool Nodes</em> call external capabilities, and
+      <em>Data Nodes</em> handle the flow of data through the graph.
+    </p>
+
+    <div class="callout callout-note">
+      <strong>Drag to add nodes.</strong> All node types live in the palette on the left side of
+      the canvas. Drag any node onto the canvas to add it. Connect nodes by dragging from an
+      output handle (right edge) to an input handle (left edge) of another node.
+    </div>
+
+    <!-- ─── Agent Nodes ─────────────────────────────────────────────── -->
+    <h2 id="agent-nodes">Agent Nodes</h2>
+
+    <p>
+      Agent nodes contain reasoning logic. They call LLMs, evaluate expressions, and pause
+      execution for human review. Every agent node exposes an input handle on its left edge and
+      one or more output handles on its right edge.
+    </p>
+
+    <h3 id="agentnode">AgentNode</h3>
+
+    <div class="node-card">
+      <div class="node-header">
+        <div class="node-icon" style="background: rgba(79,142,247,0.15);">🤖</div>
+        <div>
+          <h3>AgentNode <span class="badge">LLM</span></h3>
+          <p style="margin:0;font-size:0.85rem;color:var(--text-muted);">
+            Runs a single LLM inference call with a configurable system prompt, model, and tool
+            list. Supports all providers available through LiteLLM, including OpenAI, Anthropic,
+            Groq, Mistral, Gemini, DeepSeek, AWS Bedrock, Ollama, and any OpenAI-compatible
+            endpoint.
+          </p>
+        </div>
+      </div>
+
+      <table class="props-table">
+        <thead>
+          <tr><th>Property</th><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>label</td><td>string</td><td>Display name shown on the canvas node.</td></tr>
+          <tr><td>model</td><td>string</td><td>LiteLLM model string, e.g. <code>gpt-4o</code>, <code>claude-3-5-sonnet-20241022</code>, <code>ollama/llama3</code>.</td></tr>
+          <tr><td>system_prompt</td><td>string</td><td>System message prepended to every inference call. Supports <code>{"{{"}</code>variable<code>{"}}"}</code> interpolation from upstream node output.</td></tr>
+          <tr><td>temperature</td><td>float</td><td>Sampling temperature (0.0–2.0). Default: <code>0.7</code>.</td></tr>
+          <tr><td>max_tokens</td><td>integer</td><td>Maximum completion tokens. Default: <code>2048</code>. Set to <code>0</code> to use the model's context limit.</td></tr>
+          <tr><td>tools</td><td>string[]</td><td>List of built-in or MCP tool names to expose to this agent. The agent may call them during a single turn via tool-use / function-calling.</td></tr>
+          <tr><td>api_key_ref</td><td>string</td><td>Keychain key reference for the provider API key. If blank, falls back to the <code>NEURALFLOW_KEY_&lt;PROVIDER&gt;</code> environment variable.</td></tr>
+          <tr><td>timeout_s</td><td>integer</td><td>Per-call timeout in seconds. Default: <code>120</code>.</td></tr>
+          <tr><td>retries</td><td>integer</td><td>Number of automatic retries on transient errors. Default: <code>2</code>.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 id="routernode">RouterNode</h3>
+
+    <div class="node-card">
+      <div class="node-header">
+        <div class="node-icon" style="background: rgba(251,191,36,0.15);">🔀</div>
+        <div>
+          <h3>RouterNode <span class="badge" style="background:rgba(251,191,36,0.15);color:var(--amber);">Control</span></h3>
+          <p style="margin:0;font-size:0.85rem;color:var(--text-muted);">
+            Evaluates a JavaScript expression against the incoming data object and routes
+            execution to one of multiple named output handles. Use it to implement
+            if/else branching, multi-way classification routing, and retry loops.
+          </p>
+        </div>
+      </div>
+
+      <table class="props-table">
+        <thead>
+          <tr><th>Property</th><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>label</td><td>string</td><td>Display name shown on the canvas node.</td></tr>
+          <tr><td>expression</td><td>string</td><td>JavaScript expression evaluated with <code>data</code> in scope. Must return a string matching one of the route names. Example: <code>data.sentiment === 'positive' ? 'approve' : 'reject'</code></td></tr>
+          <tr><td>routes</td><td>string[]</td><td>List of named output handles. Each name appears as a labelled port on the right edge of the node.</td></tr>
+          <tr><td>default_route</td><td>string</td><td>Route taken when the expression returns an unrecognised value or throws. Must be one of the names in <code>routes</code>.</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-warn" style="margin-top:16px;">
+        <strong>Warning:</strong> The expression runs in a sandboxed V8 context with a 100 ms
+        timeout. Avoid async operations or imports inside the expression string.
+      </div>
+    </div>
+
+    <h3 id="humannode">HumanNode</h3>
+
+    <div class="node-card">
+      <div class="node-header">
+        <div class="node-icon" style="background: rgba(52,211,153,0.15);">👤</div>
+        <div>
+          <h3>HumanNode <span class="badge" style="background:rgba(52,211,153,0.15);color:var(--green);">Pause</span></h3>
+          <p style="margin:0;font-size:0.85rem;color:var(--text-muted);">
+            Pauses workflow execution and emits an <code>awaiting_input</code> SSE event. The
+            frontend presents a modal to the operator, who types a response and clicks Submit.
+            Execution resumes automatically with the submitted text injected into the next node's
+            input. See <a href="concepts.html#human-in-the-loop">Human-in-the-Loop</a> for the
+            full flow.
+          </p>
+        </div>
+      </div>
+
+      <table class="props-table">
+        <thead>
+          <tr><th>Property</th><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>label</td><td>string</td><td>Display name and heading shown in the modal.</td></tr>
+          <tr><td>prompt</td><td>string</td><td>Instruction or question displayed to the operator in the pause modal.</td></tr>
+          <tr><td>timeout_s</td><td>integer</td><td>Seconds to wait before auto-cancelling the run. <code>0</code> means wait forever. Default: <code>0</code>.</td></tr>
+          <tr><td>input_type</td><td>enum</td><td><code>text</code> (plain text area) or <code>approval</code> (Approve / Reject buttons). Default: <code>text</code>.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ─── Tool Nodes ──────────────────────────────────────────────── -->
+    <h2 id="tool-nodes">Tool Nodes</h2>
+
+    <p>
+      Tool nodes call external capabilities — built-in utilities or remote MCP servers — and
+      return structured results to the next node in the graph.
+    </p>
+
+    <h3 id="toolnode">ToolNode</h3>
+
+    <div class="node-card">
+      <div class="node-header">
+        <div class="node-icon" style="background: rgba(52,211,153,0.15);">🔧</div>
+        <div>
+          <h3>ToolNode <span class="badge" style="background:rgba(52,211,153,0.15);color:var(--green);">Tool</span></h3>
+          <p style="margin:0;font-size:0.85rem;color:var(--text-muted);">
+            Calls a single built-in or MCP tool explicitly, without going through an LLM agent.
+            Use this when you want deterministic tool invocation rather than letting an agent
+            decide. Built-in tools include <code>web_search</code>, <code>file_read</code>,
+            <code>file_write</code>, <code>http_request</code>, <code>code_exec</code>, and
+            <code>shell</code>.
+          </p>
+        </div>
+      </div>
+
+      <table class="props-table">
+        <thead>
+          <tr><th>Property</th><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>label</td><td>string</td><td>Display name shown on the canvas node.</td></tr>
+          <tr><td>tool_name</td><td>string</td><td>Name of the tool to call. Must exist in the tool registry. Built-in names are listed in <code>packages/sidecar/neuralflow/tools/</code>.</td></tr>
+          <tr><td>arguments</td><td>object</td><td>Static argument map merged with the runtime input. Static values take precedence over upstream data when keys conflict.</td></tr>
+          <tr><td>output_key</td><td>string</td><td>Key under which the tool result is stored in the output object. Default: <code>result</code>.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 id="mcpnode">McpNode</h3>
+
+    <div class="node-card">
+      <div class="node-header">
+        <div class="node-icon" style="background: rgba(155,109,255,0.15);">🔌</div>
+        <div>
+          <h3>McpNode <span class="badge" style="background:rgba(155,109,255,0.15);color:var(--purple-light);">MCP</span></h3>
+          <p style="margin:0;font-size:0.85rem;color:var(--text-muted);">
+            Connects to an external MCP (Model Context Protocol) server and calls one of its
+            exposed tools. Supports both <code>stdio</code> and <code>sse</code> transports.
+            The MCP connection pool is managed by the sidecar; connections are reused across
+            nodes in the same run.
+          </p>
+        </div>
+      </div>
+
+      <table class="props-table">
+        <thead>
+          <tr><th>Property</th><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>label</td><td>string</td><td>Display name shown on the canvas node.</td></tr>
+          <tr><td>transport</td><td>enum</td><td><code>stdio</code> or <code>sse</code>. For <code>stdio</code>, the sidecar spawns the MCP server as a subprocess. For <code>sse</code>, it connects to a running HTTP endpoint.</td></tr>
+          <tr><td>command</td><td>string</td><td><em>(stdio only)</em> Shell command to launch the MCP server. Example: <code>npx -y @modelcontextprotocol/server-filesystem /tmp</code></td></tr>
+          <tr><td>url</td><td>string</td><td><em>(sse only)</em> Full URL of the MCP SSE endpoint. Example: <code>http://localhost:3000/sse</code></td></tr>
+          <tr><td>tool_name</td><td>string</td><td>Name of the MCP tool to invoke. Must match a tool advertised in the server's capabilities response.</td></tr>
+          <tr><td>arguments</td><td>object</td><td>Static arguments merged with runtime input data before calling the tool.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ─── Data Nodes ──────────────────────────────────────────────── -->
+    <h2 id="data-nodes">Data Nodes</h2>
+
+    <p>
+      Data nodes shape, filter, and combine the data flowing through the graph. They contain no
+      LLM calls and execute synchronously with negligible latency.
+    </p>
+
+    <h3 id="inputnode">InputNode</h3>
+
+    <div class="node-card">
+      <div class="node-header">
+        <div class="node-icon" style="background: rgba(56,217,245,0.15);">📥</div>
+        <div>
+          <h3>InputNode <span class="badge" style="background:rgba(56,217,245,0.15);color:var(--cyan);">Entry</span></h3>
+          <p style="margin:0;font-size:0.85rem;color:var(--text-muted);">
+            The workflow entry point. Exactly one InputNode is required per workflow. It receives
+            the initial payload from the <code>POST /api/runs</code> request body and passes it
+            downstream. A workflow with no InputNode cannot be run.
+          </p>
+        </div>
+      </div>
+
+      <table class="props-table">
+        <thead>
+          <tr><th>Property</th><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>label</td><td>string</td><td>Display name. Conventionally set to <code>Input</code> or the name of the expected payload field.</td></tr>
+          <tr><td>schema</td><td>object</td><td>Optional JSON Schema object describing the expected input shape. Used for validation and the Properties panel's field hints. Not enforced at runtime.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 id="outputnode">OutputNode</h3>
+
+    <div class="node-card">
+      <div class="node-header">
+        <div class="node-icon" style="background: rgba(56,217,245,0.15);">📤</div>
+        <div>
+          <h3>OutputNode <span class="badge" style="background:rgba(56,217,245,0.15);color:var(--cyan);">Exit</span></h3>
+          <p style="margin:0;font-size:0.85rem;color:var(--text-muted);">
+            Collects the final output of the workflow. Data arriving at an OutputNode is stored
+            in the run record and streamed as a <code>run_complete</code> SSE event. A workflow
+            may have multiple OutputNodes; all are collected into the run's
+            <code>outputs</code> array.
+          </p>
+        </div>
+      </div>
+
+      <table class="props-table">
+        <thead>
+          <tr><th>Property</th><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>label</td><td>string</td><td>Display name. Appears as the key in the <code>outputs</code> map on the run record.</td></tr>
+          <tr><td>format</td><td>enum</td><td><code>raw</code> (pass data through unchanged), <code>markdown</code> (render in the output panel as Markdown), or <code>json</code> (pretty-print JSON). Default: <code>raw</code>.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 id="transformnode">TransformNode</h3>
+
+    <div class="node-card">
+      <div class="node-header">
+        <div class="node-icon" style="background: rgba(79,142,247,0.15);">⚙️</div>
+        <div>
+          <h3>TransformNode <span class="badge">Data</span></h3>
+          <p style="margin:0;font-size:0.85rem;color:var(--text-muted);">
+            Applies a synchronous JavaScript transform to the incoming data object and passes the
+            result downstream. Use it to reshape payloads, extract fields, format strings, or
+            compute derived values without an LLM call.
+          </p>
+        </div>
+      </div>
+
+      <table class="props-table">
+        <thead>
+          <tr><th>Property</th><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>label</td><td>string</td><td>Display name shown on the canvas node.</td></tr>
+          <tr><td>code</td><td>string</td><td>JavaScript function body. Receives <code>data</code> and must return the transformed value. Example: <code>return { summary: data.output.trim().slice(0, 500) };</code></td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-note" style="margin-top:16px;">
+        <strong>Note:</strong> The transform runs in a Node.js <code>vm.runInNewContext</code>
+        sandbox with a 200 ms timeout. The return value replaces the entire data object
+        passed to downstream nodes.
+      </div>
+    </div>
+
+    <h3 id="filternode">FilterNode</h3>
+
+    <div class="node-card">
+      <div class="node-header">
+        <div class="node-icon" style="background: rgba(251,191,36,0.15);">🔎</div>
+        <div>
+          <h3>FilterNode <span class="badge" style="background:rgba(251,191,36,0.15);color:var(--amber);">Gate</span></h3>
+          <p style="margin:0;font-size:0.85rem;color:var(--text-muted);">
+            Acts as a conditional gate. Evaluates a JavaScript predicate against the incoming
+            data. If the predicate returns <code>true</code>, data passes through to the
+            <em>pass</em> output handle. If it returns <code>false</code>, data is routed to the
+            <em>fail</em> output handle (if connected) or the run step is marked as skipped.
+          </p>
+        </div>
+      </div>
+
+      <table class="props-table">
+        <thead>
+          <tr><th>Property</th><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>label</td><td>string</td><td>Display name shown on the canvas node.</td></tr>
+          <tr><td>predicate</td><td>string</td><td>JavaScript expression that returns a boolean. <code>data</code> is in scope. Example: <code>data.confidence &gt; 0.8</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 id="aggregatornode">AggregatorNode</h3>
+
+    <div class="node-card">
+      <div class="node-header">
+        <div class="node-icon" style="background: rgba(155,109,255,0.15);">🔗</div>
+        <div>
+          <h3>AggregatorNode <span class="badge" style="background:rgba(155,109,255,0.15);color:var(--purple-light);">Fan-in</span></h3>
+          <p style="margin:0;font-size:0.85rem;color:var(--text-muted);">
+            Waits for data to arrive on all connected input handles and combines them into a
+            single object before passing execution downstream. Use it to join parallel branches
+            — for example, after running several AgentNodes in parallel and merging their results.
+          </p>
+        </div>
+      </div>
+
+      <table class="props-table">
+        <thead>
+          <tr><th>Property</th><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>label</td><td>string</td><td>Display name shown on the canvas node.</td></tr>
+          <tr><td>strategy</td><td>enum</td><td>
+            <code>merge</code> — shallow-merge all input objects into one.<br>
+            <code>array</code> — collect all inputs into an array under the key <code>items</code>.<br>
+            <code>first</code> — pass through the first input that arrives (race semantics).
+            Default: <code>merge</code>.
+          </td></tr>
+          <tr><td>wait_for</td><td>integer</td><td>Number of inputs to wait for before emitting output. <code>0</code> means wait for all connected inputs. Default: <code>0</code>.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </main>
+</div>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <h3>⚡ NeuralFlow</h3>
+      <p>Visual AI agent orchestration.<br>Local-first. Any model. No Docker.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Docs</h4>
+      <ul>
+        <li><a href="getting-started.html">Getting Started</a></li>
+        <li><a href="nodes.html">Node Reference</a></li>
+        <li><a href="concepts.html">Core Concepts</a></li>
+        <li><a href="api.html">API Reference</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Project</h4>
+      <ul>
+        <li><a href="https://github.com/ssnelavala-masstcs/neuralflow" target="_blank" rel="noopener">GitHub</a></li>
+        <li><a href="https://github.com/ssnelavala-masstcs/neuralflow/issues" target="_blank" rel="noopener">Issues</a></li>
+        <li><a href="https://github.com/ssnelavala-masstcs/neuralflow/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Contributing</a></li>
+        <li><a href="https://github.com/ssnelavala-masstcs/neuralflow/blob/main/LICENSE" target="_blank" rel="noopener">License (Apache 2.0)</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Community</h4>
+      <ul>
+        <li><a href="https://github.com/ssnelavala-masstcs/neuralflow/discussions" target="_blank" rel="noopener">Discussions</a></li>
+        <li><a href="https://github.com/ssnelavala-masstcs/neuralflow/releases" target="_blank" rel="noopener">Releases</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>Apache 2.0 © Stanley Sujith Nelavala</span>
+    <span>Built with Tauri v2 · React 19 · FastAPI</span>
+  </div>
+</footer>
+
+<script src="../assets/nav.js"></script>
+</body>
+</html>

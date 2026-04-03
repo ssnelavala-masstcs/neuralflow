@@ -11,6 +11,9 @@
 [![Phase 1 Complete](https://img.shields.io/badge/Phase%201-Complete-brightgreen)](docs/PRD.md)
 [![Phase 2 Complete](https://img.shields.io/badge/Phase%202-Complete-brightgreen)](docs/PRD.md)
 [![Phase 3 Complete](https://img.shields.io/badge/Phase%203-Complete-brightgreen)](docs/PRD.md)
+[![Phase 4 Complete](https://img.shields.io/badge/Phase%204-Complete-brightgreen)](docs/PRD.md)
+[![Docs](https://img.shields.io/badge/Docs-GitHub%20Pages-blue)](https://ssnelavala-masstcs.github.io/neuralflow/)
+[![Release](https://img.shields.io/github/v/release/ssnelavala-masstcs/neuralflow?color=green)](https://github.com/ssnelavala-masstcs/neuralflow/releases)
 
 > Build multi-agent AI workflows by drawing them. Runs entirely on your machine.
 
@@ -111,9 +114,21 @@ Powered by [LiteLLM](https://github.com/BerriAI/litellm) — one interface to al
 - No telemetry by default
 - Works fully offline with Ollama
 
+### Security
+- **Rate limiting**: Per-IP sliding window (100 req/min general, 10 req/min for workflow execution)
+- **Request size limits**: 10 MB default, 50 MB for uploads
+- **Input validation**: Pydantic schemas with `extra="forbid"`, max-length constraints, pattern validation
+- **CORS hardening**: Explicit methods and headers (no wildcards)
+- **Structured logging**: JSON logs with sensitive data redaction (API keys, tokens)
+- **Error handling**: Consistent JSON error format, no stack trace leakage
+- **Auth tokens**: SHA-256 hashed tokens for remote sidecar access
+- **SQL injection safe**: SQLAlchemy ORM with parameterized queries throughout
+
 ---
 
 ## Quick Start
+
+> Full documentation: [ssnelavala-masstcs.github.io/neuralflow](https://ssnelavala-masstcs.github.io/neuralflow/)
 
 ### Build from Source
 
@@ -311,10 +326,19 @@ neuralflow/
 - [x] Community template gallery
 - [x] Workflow sharing via GitHub Gist
 
-### Phase 4 — Scale
-- [ ] Evaluation framework (A/B test workflows)
-- [ ] Multi-workspace profiles
-- [ ] Remote execution option (optional, self-hosted)
+### Phase 4 — Scale ✅ Complete
+- [x] Evaluation framework (A/B test workflows)
+- [x] Multi-workspace profiles
+- [x] Remote execution option (optional, self-hosted)
+- [x] Rate limiting middleware
+- [x] Request size limits
+- [x] Structured JSON logging
+- [x] Global error handler
+- [x] Input validation hardening
+- [x] CORS hardening
+- [x] Auth token system for remote sidecar
+- [x] Error boundaries
+- [x] Keyboard shortcuts
 
 ---
 

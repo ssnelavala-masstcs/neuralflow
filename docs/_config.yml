@@ -1,0 +1,6 @@
+title: NeuralFlow Docs
+description: Visual AI Agent Orchestration — Local, Private, Any Model
+theme: null  # using custom HTML, not Jekyll theme
+exclude:
+  - PRD.md
+  - "*.md"

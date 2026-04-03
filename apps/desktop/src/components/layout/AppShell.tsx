@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Play, Settings, Cpu, StopCircle, Code2, PanelRightOpen, PanelRightClose, LayoutGrid } from "lucide-react";
+import { Play, Settings, Cpu, StopCircle, Code2, PanelRightOpen, PanelRightClose, LayoutGrid, Globe } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Sidebar } from "./Sidebar";
 import { BottomPanel } from "./BottomPanel";
@@ -8,6 +8,8 @@ import { RunModal } from "@/components/run/RunModal";
 import { ExportModal } from "@/components/export/ExportModal";
 import { PropertiesPanel } from "@/components/properties/PropertiesPanel";
 import { ProviderSettingsModal } from "@/components/settings/ProviderSettingsModal";
+import { RemoteConnectionSettings } from "@/components/settings/RemoteConnectionSettings";
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useWorkflowStore } from "@/stores/workflowStore";
 import { useRunStore } from "@/stores/runStore";
 import { useSettingsStore } from "@/stores/settingsStore";
@@ -24,15 +26,15 @@ export function AppShell({ onNavigateTemplates }: AppShellProps) {
   const [showExportModal, setShowExportModal] = useState(false);
   const [showProviderSettings, setShowProviderSettings] = useState(false);
   const [showProperties, setShowProperties] = useState(false);
+  const [showRemoteSettings, setShowRemoteSettings] = useState(false);
   const { loadWorkflows, activeWorkflowId, workflows } = useWorkflowStore();
   const { runStatus, cancelRun } = useRunStore();
-  const { sidecarReady, setSidecarReady } = useSettingsStore();
+  const { sidecarReady, setSidecarReady, connectionStatus } = useSettingsStore();
 
   // Bootstrap: ensure default workspace + load workflows
   useEffect(() => {
     async function init() {
       try {
-        // Ensure default workspace exists
         const workspaces = await workflowsApi.listWorkspaces();
         let wsId = workspaces[0]?.id ?? null;
         if (!wsId) {
@@ -42,12 +44,21 @@ export function AppShell({ onNavigateTemplates }: AppShellProps) {
         await loadWorkflows(wsId);
         setSidecarReady(true);
       } catch {
-        // Sidecar not yet up — retry
         setTimeout(init, 1000);
       }
     }
     init();
   }, []);
+
+  // Keyboard shortcuts
+  useKeyboardShortcuts({
+    shortcuts: [
+      { key: "Enter", ctrl: true, handler: () => { if (activeWorkflowId && sidecarReady && !isRunning) setRunModalOpen(true); } },
+      { key: "s", ctrl: true, handler: () => { /* save handled by PropertiesPanel */ } },
+      { key: "p", ctrl: true, handler: () => setShowProperties((s) => !s) },
+      { key: "Escape", handler: () => { if (showProperties) setShowProperties(false); if (showExportModal) setShowExportModal(false); } },
+    ],
+  });
 
   const isRunning = runStatus === "running" || runStatus === "queued";
   const activeWorkflow = workflows.find((w) => w.id === activeWorkflowId);
@@ -68,6 +79,18 @@ export function AppShell({ onNavigateTemplates }: AppShellProps) {
         <div className="ml-auto flex items-center gap-2">
           {!sidecarReady && (
             <span className="text-xs text-yellow-500 animate-pulse">Connecting to sidecar…</span>
+          )}
+          {connectionStatus === "connected" && (
+            <span className="text-xs text-green-500 flex items-center gap-1">
+              <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
+              Remote
+            </span>
+          )}
+          {connectionStatus === "error" && (
+            <span className="text-xs text-red-500 flex items-center gap-1">
+              <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
+              Remote error
+            </span>
           )}
           {isRunning ? (
             <button
@@ -122,6 +145,18 @@ export function AppShell({ onNavigateTemplates }: AppShellProps) {
           >
             <Settings className="h-4 w-4" />
           </button>
+          <button
+            onClick={() => setShowRemoteSettings(true)}
+            className={cn(
+              "rounded-md p-1.5 transition-colors",
+              connectionStatus === "connected"
+                ? "text-green-500 hover:bg-accent"
+                : "text-muted-foreground hover:text-foreground hover:bg-accent"
+            )}
+            title="Remote Connection"
+          >
+            <Globe className="h-4 w-4" />
+          </button>
         </div>
       </header>
 
@@ -147,6 +182,7 @@ export function AppShell({ onNavigateTemplates }: AppShellProps) {
         <ExportModal workflowId={activeWorkflowId} onClose={() => setShowExportModal(false)} />
       )}
       <ProviderSettingsModal open={showProviderSettings} onClose={() => setShowProviderSettings(false)} />
+      <RemoteConnectionSettings open={showRemoteSettings} onClose={() => setShowRemoteSettings(false)} />
     </div>
   );
 }

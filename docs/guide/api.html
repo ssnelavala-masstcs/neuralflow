@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>API Reference — NeuralFlow Docs</title>
+  <meta name="description" content="Full REST API reference for the NeuralFlow Python sidecar running on localhost:7411." />
+  <link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+
+<!-- ── Navbar ──────────────────────────────────────────────────── -->
+<nav class="nav">
+  <a href="../index.html" class="nav-logo">
+    <div class="nav-logo-mark">⚡</div>
+    NeuralFlow
+  </a>
+  <ul class="nav-links">
+    <li><a href="getting-started.html">Docs</a></li>
+    <li><a href="nodes.html">Nodes</a></li>
+    <li><a href="concepts.html">Concepts</a></li>
+    <li><a href="api.html" class="active">API</a></li>
+  </ul>
+  <div class="nav-actions">
+    <button class="btn-theme" id="theme-btn" aria-label="Toggle theme">☀️</button>
+    <a href="https://github.com/ssnelavala-masstcs/neuralflow" class="btn-gh" target="_blank" rel="noopener">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.167 6.839 9.49.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.605-3.369-1.342-3.369-1.342-.454-1.155-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.03-2.683-.103-.253-.447-1.27.098-2.647 0 0 .84-.268 2.75 1.026A9.578 9.578 0 0 1 12 6.836a9.59 9.59 0 0 1 2.504.337c1.909-1.294 2.747-1.026 2.747-1.026.547 1.377.203 2.394.1 2.647.641.699 1.028 1.592 1.028 2.683 0 3.842-2.337 4.687-4.565 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.741 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
+      GitHub
+    </a>
+    <button class="hamburger" aria-label="Menu" aria-expanded="false">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+</nav>
+
+<div class="page-wrap">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-title">API Reference</div>
+      <ul class="sidebar-nav">
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#auth">Authentication</a></li>
+        <li><a href="#workspaces">Workspaces</a></li>
+        <li><a href="#workflows">Workflows</a></li>
+        <li><a href="#runs">Runs &amp; Streaming</a></li>
+        <li><a href="#providers">Providers</a></li>
+        <li><a href="#tools">Tools</a></li>
+        <li><a href="#memory-api">Memory</a></li>
+        <li><a href="#templates-api">Templates</a></li>
+        <li><a href="#plugins-api">Plugins</a></li>
+        <li><a href="#cost-api">Cost</a></li>
+        <li><a href="#versions">Versions</a></li>
+        <li><a href="#mcp-api">MCP Servers</a></li>
+        <li><a href="#errors">Errors</a></li>
+      </ul>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-title">Guides</div>
+      <ul class="sidebar-nav">
+        <li><a href="getting-started.html">Getting Started</a></li>
+        <li><a href="nodes.html">Node Reference</a></li>
+        <li><a href="concepts.html">Core Concepts</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main-content">
+    <h1>API Reference</h1>
+    <p class="page-lead">
+      The NeuralFlow sidecar exposes a REST API on <code>http://127.0.0.1:7411</code>.
+      The interactive Swagger UI is available at <a href="http://127.0.0.1:7411/docs" target="_blank" rel="noopener">localhost:7411/docs</a> when the sidecar is running.
+    </p>
+
+    <!-- Overview -->
+    <h2 id="overview">Overview</h2>
+    <p>All endpoints are prefixed with <code>/api</code>. The API uses JSON for request and response bodies. Streaming endpoints use Server-Sent Events (SSE).</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Category</th><th>Base path</th></tr></thead>
+        <tbody>
+          <tr><td>Workspaces</td><td><code>/api/workspaces</code></td></tr>
+          <tr><td>Workflows</td><td><code>/api/workflows</code></td></tr>
+          <tr><td>Runs</td><td><code>/api/runs</code></td></tr>
+          <tr><td>Providers</td><td><code>/api/providers</code></td></tr>
+          <tr><td>Tools</td><td><code>/api/tools</code></td></tr>
+          <tr><td>Memory</td><td><code>/api/memory</code></td></tr>
+          <tr><td>Templates</td><td><code>/api/templates</code></td></tr>
+          <tr><td>Plugins</td><td><code>/api/plugins</code></td></tr>
+          <tr><td>Cost</td><td><code>/api/cost</code></td></tr>
+          <tr><td>Versions</td><td><code>/api/versions</code></td></tr>
+          <tr><td>MCP Servers</td><td><code>/api/mcp</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Auth -->
+    <h2 id="auth">Authentication</h2>
+    <p>By default, the sidecar accepts requests from <code>127.0.0.1</code> without authentication. If you enable remote access in <strong>Settings → Remote Sidecar</strong>, all requests must include a bearer token:</p>
+    <div class="code-wrap">
+      <button class="copy-btn">Copy</button>
+      <pre><code>Authorization: Bearer &lt;your-token&gt;</code></pre>
+    </div>
+    <p>Tokens are SHA-256 hashed before storage. Generate one in the settings UI or via the CLI.</p>
+
+    <!-- Workspaces -->
+    <h2 id="workspaces">Workspaces</h2>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method method-get">GET</span>
+        <span class="endpoint-path">/api/workspaces</span>
+        <span class="endpoint-desc">List all workspaces</span>
+      </div>
+      <div class="endpoint-body">
+        <div class="code-wrap"><button class="copy-btn">Copy</button>
+        <pre><code><span class="token-comment"># Response</span>
+[
+  {
+    <span class="token-string">"id"</span>: <span class="token-string">"ws_default"</span>,
+    <span class="token-string">"name"</span>: <span class="token-string">"default"</span>,
+    <span class="token-string">"db_path"</span>: <span class="token-string">"~/.neuralflow/workspaces/default/data.db"</span>,
+    <span class="token-string">"created_at"</span>: <span class="token-string">"2026-01-01T00:00:00Z"</span>
+  }
+]</code></pre></div>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method method-post">POST</span>
+        <span class="endpoint-path">/api/workspaces</span>
+        <span class="endpoint-desc">Create a new workspace</span>
+      </div>
+      <div class="endpoint-body">
+        <div class="code-wrap"><button class="copy-btn">Copy</button>
+        <pre><code><span class="token-comment"># Request</span>
+{ <span class="token-string">"name"</span>: <span class="token-string">"my-project"</span> }
+
+<span class="token-comment"># Response 201</span>
+{ <span class="token-string">"id"</span>: <span class="token-string">"ws_abc123"</span>, <span class="token-string">"name"</span>: <span class="token-string">"my-project"</span>, <span class="token-string">"db_path"</span>: <span class="token-string">"..."</span> }</code></pre></div>
+      </div>
+    </div>
+
+    <!-- Workflows -->
+    <h2 id="workflows">Workflows</h2>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method method-get">GET</span>
+        <span class="endpoint-path">/api/workflows?workspace_id=&lt;id&gt;</span>
+        <span class="endpoint-desc">List workflows in a workspace</span>
+      </div>
+      <div class="endpoint-body">
+        <div class="code-wrap"><button class="copy-btn">Copy</button>
+        <pre><code>[
+  {
+    <span class="token-string">"id"</span>: <span class="token-string">"wf_abc123"</span>,
+    <span class="token-string">"name"</span>: <span class="token-string">"Research Assistant"</span>,
+    <span class="token-string">"execution_mode"</span>: <span class="token-string">"sequential"</span>,
+    <span class="token-string">"updated_at"</span>: <span class="token-string">"2026-03-15T10:30:00Z"</span>
+  }
+]</code></pre></div>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method method-post">POST</span>
+        <span class="endpoint-path">/api/workflows</span>
+        <span class="endpoint-desc">Create or save a workflow</span>
+      </div>
+      <div class="endpoint-body">
+        <div class="code-wrap"><button class="copy-btn">Copy</button>
+        <pre><code><span class="token-comment"># Request body</span>
+{
+  <span class="token-string">"workspace_id"</span>: <span class="token-string">"ws_default"</span>,
+  <span class="token-string">"name"</span>: <span class="token-string">"My Workflow"</span>,
+  <span class="token-string">"execution_mode"</span>: <span class="token-string">"sequential"</span>,
+  <span class="token-string">"nodes"</span>: [...],
+  <span class="token-string">"edges"</span>: [...]
+}</code></pre></div>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method method-get">GET</span>
+        <span class="endpoint-path">/api/workflows/&lt;workflow_id&gt;</span>
+        <span class="endpoint-desc">Get a workflow by ID (full node/edge graph)</span>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method method-put">PUT</span>
+        <span class="endpoint-path">/api/workflows/&lt;workflow_id&gt;</span>
+        <span class="endpoint-desc">Update an existing workflow</span>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method method-delete">DELETE</span>
+        <span class="endpoint-path">/api/workflows/&lt;workflow_id&gt;</span>
+        <span class="endpoint-desc">Delete a workflow and all its runs</span>
+      </div>
+    </div>
+
+    <!-- Runs -->
+    <h2 id="runs">Runs and streaming</h2>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method method-post">POST</span>
+        <span class="endpoint-path">/api/runs</span>
+        <span class="endpoint-desc">Start a new workflow run</span>
+      </div>
+      <div class="endpoint-body">
+        <div class="code-wrap"><button class="copy-btn">Copy</button>
+        <pre><code><span class="token-comment"># Request</span>
+{
+  <span class="token-string">"workflow_id"</span>: <span class="token-string">"wf_abc123"</span>,
+  <span class="token-string">"input"</span>: <span class="token-string">"Summarize the latest AI research papers"</span>
+}
+
+<span class="token-comment"># Response 202</span>
+{ <span class="token-string">"run_id"</span>: <span class="token-string">"run_xyz789"</span>, <span class="token-string">"status"</span>: <span class="token-string">"started"</span> }</code></pre></div>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method method-sse">SSE</span>
+        <span class="endpoint-path">/api/runs/&lt;run_id&gt;/stream</span>
+        <span class="endpoint-desc">Stream real-time run events via Server-Sent Events</span>
+      </div>
+      <div class="endpoint-body">
+        <p style="font-size:0.875rem;color:var(--text-muted);margin-bottom:12px;">Connect with <code>EventSource</code>. Each event has a <code>type</code> field:</p>
+        <div class="code-wrap"><button class="copy-btn">Copy</button>
+        <pre><code><span class="token-comment"># Event types</span>
+data: {<span class="token-string">"type"</span>: <span class="token-string">"node_start"</span>,    <span class="token-string">"node_id"</span>: <span class="token-string">"agent_1"</span>}
+data: {<span class="token-string">"type"</span>: <span class="token-string">"llm_chunk"</span>,     <span class="token-string">"text"</span>: <span class="token-string">"The latest..."</span>}
+data: {<span class="token-string">"type"</span>: <span class="token-string">"tool_call"</span>,     <span class="token-string">"tool"</span>: <span class="token-string">"web_search"</span>, <span class="token-string">"input"</span>: <span class="token-string">"..."</span>}
+data: {<span class="token-string">"type"</span>: <span class="token-string">"tool_result"</span>,   <span class="token-string">"result"</span>: <span class="token-string">"..."</span>}
+data: {<span class="token-string">"type"</span>: <span class="token-string">"node_complete"</span>, <span class="token-string">"node_id"</span>: <span class="token-string">"agent_1"</span>, <span class="token-string">"cost_usd"</span>: <span class="token-number">0.0023</span>}
+data: {<span class="token-string">"type"</span>: <span class="token-string">"run_complete"</span>,  <span class="token-string">"output"</span>: <span class="token-string">"..."</span>, <span class="token-string">"total_cost_usd"</span>: <span class="token-number">0.0047</span>}
+data: {<span class="token-string">"type"</span>: <span class="token-string">"run_error"</span>,    <span class="token-string">"error"</span>: <span class="token-string">"..."</span>}</code></pre></div>
+        <div class="code-wrap"><button class="copy-btn">Copy</button>
+        <pre><code><span class="token-comment">// JavaScript example</span>
+<span class="token-keyword">const</span> es = <span class="token-keyword">new</span> <span class="token-function">EventSource</span>(<span class="token-string">`http://127.0.0.1:7411/api/runs/${runId}/stream`</span>);
+es.<span class="token-function">onmessage</span> = (e) => {
+  <span class="token-keyword">const</span> event = <span class="token-function">JSON.parse</span>(e.data);
+  <span class="token-keyword">if</span> (event.type === <span class="token-string">'run_complete'</span>) es.<span class="token-function">close</span>();
+};</code></pre></div>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method method-get">GET</span>
+        <span class="endpoint-path">/api/runs?workflow_id=&lt;id&gt;</span>
+        <span class="endpoint-desc">List past runs for a workflow</span>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method method-get">GET</span>
+        <span class="endpoint-path">/api/runs/&lt;run_id&gt;</span>
+        <span class="endpoint-desc">Get full run details including per-node traces</span>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method method-post">POST</span>
+        <span class="endpoint-path">/api/runs/&lt;run_id&gt;/cancel</span>
+        <span class="endpoint-desc">Cancel a running execution</span>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method method-post">POST</span>
+        <span class="endpoint-path">/api/runs/&lt;run_id&gt;/replay</span>
+        <span class="endpoint-desc">Replay a past run from a specific step</span>
+      </div>
+      <div class="endpoint-body">
+        <div class="code-wrap"><button class="copy-btn">Copy</button>
+        <pre><code>{ <span class="token-string">"from_node_id"</span>: <span class="token-string">"agent_2"</span> }</code></pre></div>
+      </div>
+    </div>
+
+    <!-- Providers -->
+    <h2 id="providers">Providers</h2>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method method-get">GET</span>
+        <span class="endpoint-path">/api/providers?workspace_id=&lt;id&gt;</span>
+        <span class="endpoint-desc">List configured providers</span>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method method-post">POST</span>
+        <span class="endpoint-path">/api/providers</span>
+        <span class="endpoint-desc">Add a provider (key stored in OS keychain)</span>
+      </div>
+      <div class="endpoint-body">
+        <div class="code-wrap"><button class="copy-btn">Copy</button>
+        <pre><code>{
+  <span class="token-string">"workspace_id"</span>: <span class="token-string">"ws_default"</span>,
+  <span class="token-string">"provider_type"</span>: <span class="token-string">"openai"</span>,
+  <span class="token-string">"api_key"</span>: <span class="token-string">"sk-..."</span>,
+  <span class="token-string">"base_url"</span>: <span class="token-keyword">null</span>
+}</code></pre></div>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method method-post">POST</span>
+        <span class="endpoint-path">/api/providers/&lt;provider_id&gt;/test</span>
+        <span class="endpoint-desc">Test a provider connection</span>
+      </div>
+      <div class="endpoint-body">
+        <div class="code-wrap"><button class="copy-btn">Copy</button>
+        <pre><code><span class="token-comment"># Response</span>
+{ <span class="token-string">"ok"</span>: <span class="token-keyword">true</span>, <span class="token-string">"models"</span>: [<span class="token-string">"gpt-4o"</span>, <span class="token-string">"gpt-4o-mini"</span>, ...] }</code></pre></div>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method method-delete">DELETE</span>
+        <span class="endpoint-path">/api/providers/&lt;provider_id&gt;</span>
+        <span class="endpoint-desc">Remove a provider and delete its key from the keychain</span>
+      </div>
+    </div>
+
+    <!-- Tools -->
+    <h2 id="tools">Tools</h2>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method method-get">GET</span>
+        <span class="endpoint-path">/api/tools</span>
+        <span class="endpoint-desc">List all available built-in tools and installed plugin tools</span>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method method-post">POST</span>
+        <span class="endpoint-path">/api/tools/&lt;tool_name&gt;/invoke</span>
+        <span class="endpoint-desc">Directly invoke a tool (for testing)</span>
+      </div>
+      <div class="endpoint-body">
+        <div class="code-wrap"><button class="copy-btn">Copy</button>
+        <pre><code><span class="token-comment"># Request — invoke web_search</span>
+{ <span class="token-string">"input"</span>: { <span class="token-string">"query"</span>: <span class="token-string">"NeuralFlow AI workflow"</span> } }
+
+<span class="token-comment"># Response</span>
+{ <span class="token-string">"output"</span>: <span class="token-string">"[search results as text]"</span>, <span class="token-string">"duration_ms"</span>: <span class="token-number">320</span> }</code></pre></div>
+      </div>
+    </div>
+
+    <!-- Memory -->
+    <h2 id="memory-api">Memory</h2>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method method-post">POST</span>
+        <span class="endpoint-path">/api/memory/store</span>
+        <span class="endpoint-desc">Store text in a memory collection</span>
+      </div>
+      <div class="endpoint-body">
+        <div class="code-wrap"><button class="copy-btn">Copy</button>
+        <pre><code>{
+  <span class="token-string">"collection"</span>: <span class="token-string">"research_findings"</span>,
+  <span class="token-string">"text"</span>: <span class="token-string">"LLMs show emergent capabilities at scale..."</span>,
+  <span class="token-string">"metadata"</span>: { <span class="token-string">"source"</span>: <span class="token-string">"arxiv:2304.01234"</span> }
+}</code></pre></div>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method method-post">POST</span>
+        <span class="endpoint-path">/api/memory/search</span>
+        <span class="endpoint-desc">Semantic search over a memory collection</span>
+      </div>
+      <div class="endpoint-body">
+        <div class="code-wrap"><button class="copy-btn">Copy</button>
+        <pre><code>{
+  <span class="token-string">"collection"</span>: <span class="token-string">"research_findings"</span>,
+  <span class="token-string">"query"</span>: <span class="token-string">"emergent behavior in large models"</span>,
+  <span class="token-string">"top_k"</span>: <span class="token-number">5</span>
+}
+
+<span class="token-comment"># Response</span>
+{
+  <span class="token-string">"chunks"</span>: [
+    { <span class="token-string">"text"</span>: <span class="token-string">"..."</span>, <span class="token-string">"score"</span>: <span class="token-number">0.94</span>, <span class="token-string">"metadata"</span>: {...} }
+  ]
+}</code></pre></div>
+      </div>
+    </div>
+
+    <!-- Templates -->
+    <h2 id="templates-api">Templates</h2>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method method-get">GET</span>
+        <span class="endpoint-path">/api/templates</span>
+        <span class="endpoint-desc">List built-in and community templates</span>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method method-post">POST</span>
+        <span class="endpoint-path">/api/templates/&lt;template_name&gt;/import</span>
+        <span class="endpoint-desc">Import a template as a new workflow</span>
+      </div>
+      <div class="endpoint-body">
+        <div class="code-wrap"><button class="copy-btn">Copy</button>
+        <pre><code>curl -X POST \
+  "http://127.0.0.1:7411/api/templates/research-assistant.json/import?workspace_id=ws_default"</code></pre></div>
+      </div>
+    </div>
+
+    <!-- Plugins -->
+    <h2 id="plugins-api">Plugins</h2>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method method-get">GET</span>
+        <span class="endpoint-path">/api/plugins</span>
+        <span class="endpoint-desc">List installed plugins with their node types and load status</span>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method method-post">POST</span>
+        <span class="endpoint-path">/api/plugins/reload</span>
+        <span class="endpoint-desc">Hot-reload all plugins without restarting the sidecar</span>
+      </div>
+    </div>
+
+    <!-- Cost -->
+    <h2 id="cost-api">Cost</h2>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method method-get">GET</span>
+        <span class="endpoint-path">/api/cost/summary?workspace_id=&lt;id&gt;&amp;days=30</span>
+        <span class="endpoint-desc">Get cost summary for the past N days</span>
+      </div>
+      <div class="endpoint-body">
+        <div class="code-wrap"><button class="copy-btn">Copy</button>
+        <pre><code>{
+  <span class="token-string">"total_usd"</span>: <span class="token-number">1.234</span>,
+  <span class="token-string">"by_model"</span>: { <span class="token-string">"gpt-4o"</span>: <span class="token-number">0.98</span>, <span class="token-string">"claude-opus-4-5"</span>: <span class="token-number">0.254</span> },
+  <span class="token-string">"by_day"</span>:   { <span class="token-string">"2026-04-01"</span>: <span class="token-number">0.12</span>, <span class="token-string">"2026-04-02"</span>: <span class="token-number">0.34</span> },
+  <span class="token-string">"by_workflow"</span>: { <span class="token-string">"Research Assistant"</span>: <span class="token-number">0.87</span> }
+}</code></pre></div>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method method-get">GET</span>
+        <span class="endpoint-path">/api/cost/export.csv?workspace_id=&lt;id&gt;</span>
+        <span class="endpoint-desc">Download cost data as CSV</span>
+      </div>
+    </div>
+
+    <!-- Versions -->
+    <h2 id="versions">Versions</h2>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method method-get">GET</span>
+        <span class="endpoint-path">/api/versions?workflow_id=&lt;id&gt;</span>
+        <span class="endpoint-desc">List all saved versions of a workflow</span>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method method-post">POST</span>
+        <span class="endpoint-path">/api/versions</span>
+        <span class="endpoint-desc">Save a new version snapshot</span>
+      </div>
+      <div class="endpoint-body">
+        <div class="code-wrap"><button class="copy-btn">Copy</button>
+        <pre><code>{ <span class="token-string">"workflow_id"</span>: <span class="token-string">"wf_abc123"</span>, <span class="token-string">"label"</span>: <span class="token-string">"Before refactor"</span> }</code></pre></div>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method method-get">GET</span>
+        <span class="endpoint-path">/api/versions/diff?v1=&lt;id&gt;&amp;v2=&lt;id&gt;</span>
+        <span class="endpoint-desc">Get a diff between two workflow versions</span>
+      </div>
+    </div>
+
+    <!-- MCP -->
+    <h2 id="mcp-api">MCP Servers</h2>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method method-get">GET</span>
+        <span class="endpoint-path">/api/mcp/servers</span>
+        <span class="endpoint-desc">List configured MCP server connections and their status</span>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method method-post">POST</span>
+        <span class="endpoint-path">/api/mcp/servers</span>
+        <span class="endpoint-desc">Add an MCP server connection</span>
+      </div>
+      <div class="endpoint-body">
+        <div class="code-wrap"><button class="copy-btn">Copy</button>
+        <pre><code>{
+  <span class="token-string">"name"</span>:    <span class="token-string">"filesystem"</span>,
+  <span class="token-string">"type"</span>:    <span class="token-string">"stdio"</span>,
+  <span class="token-string">"command"</span>: <span class="token-string">"npx @modelcontextprotocol/server-filesystem ~/docs"</span>
+}
+
+<span class="token-comment"># or for SSE / HTTP</span>
+{
+  <span class="token-string">"name"</span>: <span class="token-string">"my-mcp"</span>,
+  <span class="token-string">"type"</span>: <span class="token-string">"sse"</span>,
+  <span class="token-string">"url"</span>:  <span class="token-string">"http://localhost:8080/sse"</span>
+}</code></pre></div>
+      </div>
+    </div>
+
+    <!-- Errors -->
+    <h2 id="errors">Error responses</h2>
+    <p>All errors return a consistent JSON structure:</p>
+    <div class="code-wrap">
+      <button class="copy-btn">Copy</button>
+      <pre><code>{
+  <span class="token-string">"error"</span>: <span class="token-string">"workflow_not_found"</span>,
+  <span class="token-string">"message"</span>: <span class="token-string">"No workflow with id wf_abc123 in this workspace"</span>,
+  <span class="token-string">"status"</span>: <span class="token-number">404</span>
+}</code></pre>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Status</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td>400</td><td>Bad request — validation error in request body</td></tr>
+          <tr><td>401</td><td>Unauthorized — missing or invalid auth token (remote mode only)</td></tr>
+          <tr><td>404</td><td>Not found — resource does not exist</td></tr>
+          <tr><td>409</td><td>Conflict — e.g. a run is already in progress for this workflow</td></tr>
+          <tr><td>422</td><td>Unprocessable entity — Pydantic validation failed</td></tr>
+          <tr><td>429</td><td>Rate limit exceeded</td></tr>
+          <tr><td>500</td><td>Internal server error — check sidecar logs</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout callout-tip">
+      <strong>Tip:</strong> The interactive API docs at <a href="http://127.0.0.1:7411/docs" target="_blank" rel="noopener">localhost:7411/docs</a> let you try every endpoint directly in your browser while the sidecar is running.
+    </div>
+
+    <div style="margin-top:48px;padding-top:24px;border-top:1px solid var(--border);display:flex;justify-content:flex-start;">
+      <a href="concepts.html" class="btn-secondary">← Core Concepts</a>
+    </div>
+  </main>
+</div>
+
+<footer class="footer">
+  <div class="footer-bottom" style="max-width:1100px;margin:0 auto;padding:24px 0 0;">
+    <span>Apache 2.0 © Stanley Sujith Nelavala</span>
+    <span><a href="../index.html">Home</a> · <a href="getting-started.html">Getting Started</a> · <a href="nodes.html">Nodes</a></span>
+  </div>
+</footer>
+
+<script src="../assets/nav.js"></script>
+</body>
+</html>

@@ -71,8 +71,17 @@ async def list_node_runs(run_id: str, db: AsyncSession = Depends(get_db)):
 
 
 @router.get("/{run_id}/stream")
-async def stream_run(run_id: str):
-    """SSE endpoint — streams execution events as they happen."""
+async def stream_run(run_id: str, token: str | None = None):
+    """SSE endpoint — streams execution events as they happen.
+    
+    Supports optional ?token= query param for remote auth verification.
+    """
+    if token:
+        import hashlib
+        from neuralflow.api.auth import _tokens
+        token_hash = hashlib.sha256(token.encode()).hexdigest()
+        if token_hash not in _tokens:
+            raise HTTPException(401, "Invalid token")
     queue = get_run_queue(run_id)
     if queue is None:
         # Run already finished; return empty stream

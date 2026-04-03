@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Getting Started — NeuralFlow Docs</title>
+  <meta name="description" content="Install NeuralFlow, run it in development mode, and build your first multi-agent workflow." />
+  <link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+
+<nav class="nav">
+  <a href="../index.html" class="nav-logo">
+    <div class="nav-logo-mark">⚡</div>
+    NeuralFlow
+  </a>
+  <ul class="nav-links">
+    <li><a href="getting-started.html" class="active">Docs</a></li>
+    <li><a href="nodes.html">Nodes</a></li>
+    <li><a href="concepts.html">Concepts</a></li>
+    <li><a href="api.html">API</a></li>
+  </ul>
+  <div class="nav-actions">
+    <button class="btn-theme" id="theme-btn" aria-label="Toggle theme">☀️</button>
+    <a href="https://github.com/ssnelavala-masstcs/neuralflow" class="btn-gh" target="_blank" rel="noopener">GitHub</a>
+    <button class="hamburger" aria-label="Menu" aria-expanded="false">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+</nav>
+
+<div class="page-wrap">
+
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-title">Getting Started</div>
+      <ul class="sidebar-nav">
+        <li><a href="#prerequisites">Prerequisites</a></li>
+        <li><a href="#install">Install</a></li>
+        <li><a href="#run-dev">Run in Development</a></li>
+        <li><a href="#first-workflow">Your First Workflow</a></li>
+        <li><a href="#troubleshooting">Troubleshooting</a></li>
+      </ul>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-title">Other Guides</div>
+      <ul class="sidebar-nav">
+        <li><a href="nodes.html">Node Reference</a></li>
+        <li><a href="concepts.html">Core Concepts</a></li>
+        <li><a href="api.html">API Reference</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <main class="main-content">
+
+    <h1>Getting Started</h1>
+    <p class="page-lead">
+      This guide walks you through installing NeuralFlow, starting the development server, and
+      running your first multi-agent workflow end-to-end.
+    </p>
+
+    <h2 id="prerequisites">Prerequisites</h2>
+
+    <p>
+      Install the following tools before you clone the repository. NeuralFlow is a Tauri v2
+      desktop application, so it requires a Rust toolchain and a JavaScript runtime in addition
+      to the Python sidecar dependencies.
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Requirement</th>
+            <th>Minimum Version</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Node.js</td>
+            <td>20 LTS</td>
+            <td>Use <a href="https://github.com/nvm-sh/nvm" target="_blank" rel="noopener">nvm</a> or the official installer</td>
+          </tr>
+          <tr>
+            <td>Python</td>
+            <td>3.11+</td>
+            <td>3.12 recommended; 3.10 and below are not supported</td>
+          </tr>
+          <tr>
+            <td>Rust toolchain</td>
+            <td>1.77+</td>
+            <td>Install via <code>rustup</code> — includes <code>cargo</code></td>
+          </tr>
+          <tr>
+            <td>RAM</td>
+            <td>8 GB</td>
+            <td>16 GB recommended when running local models via Ollama</td>
+          </tr>
+          <tr>
+            <td>Operating system</td>
+            <td>—</td>
+            <td>macOS 12+, Ubuntu 22.04+, Windows 11 (with WebView2)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout callout-note">
+      <strong>Note:</strong> On Windows, ensure the Microsoft Edge WebView2 runtime is installed.
+      It ships with Windows 11 by default. Download it from the Microsoft website for older
+      Windows 10 installs.
+    </div>
+
+    <h3>Install Rust</h3>
+    <p>If you do not have Rust installed, run the official installer script.</p>
+    <div class="code-wrap">
+      <button class="copy-btn">Copy</button>
+      <pre><code>curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+source "$HOME/.cargo/env"
+rustup update stable</code></pre>
+    </div>
+
+    <h2 id="install">Install</h2>
+
+    <p>Clone the repository, then install both the Python sidecar and the desktop frontend.</p>
+
+    <h3>Clone the repository</h3>
+    <div class="code-wrap">
+      <button class="copy-btn">Copy</button>
+      <pre><code>git clone https://github.com/ssnelavala-masstcs/neuralflow.git
+cd neuralflow</code></pre>
+    </div>
+
+    <h3>Install uv</h3>
+    <p>
+      NeuralFlow uses <a href="https://github.com/astral-sh/uv" target="_blank" rel="noopener">uv</a>
+      to manage the sidecar's Python environment. Install it globally with <code>pip</code>.
+    </p>
+    <div class="code-wrap">
+      <button class="copy-btn">Copy</button>
+      <pre><code>pip install uv</code></pre>
+    </div>
+
+    <h3>Install sidecar dependencies</h3>
+    <div class="code-wrap">
+      <button class="copy-btn">Copy</button>
+      <pre><code>cd packages/sidecar
+uv sync
+cd ../..</code></pre>
+    </div>
+
+    <div class="callout callout-tip">
+      <strong>Tip:</strong> <code>uv sync</code> reads <code>pyproject.toml</code> and creates a
+      local <code>.venv</code>. You do not need to activate it manually — the <code>uv run</code>
+      prefix activates it automatically at runtime.
+    </div>
+
+    <h3>Install pnpm</h3>
+    <div class="code-wrap">
+      <button class="copy-btn">Copy</button>
+      <pre><code>npm install -g pnpm</code></pre>
+    </div>
+
+    <h3>Install frontend dependencies</h3>
+    <div class="code-wrap">
+      <button class="copy-btn">Copy</button>
+      <pre><code>cd apps/desktop
+pnpm install
+cd ../..</code></pre>
+    </div>
+
+    <div class="callout callout-note">
+      <strong>Note:</strong> The first <code>pnpm install</code> also downloads the Tauri CLI
+      and triggers a Rust compilation step. Expect 2–5 minutes on a modern machine.
+    </div>
+
+    <h2 id="run-dev">Run in Development</h2>
+
+    <p>
+      Use the convenience script to start the sidecar and the Tauri desktop app together in a
+      single terminal. The script streams both processes' logs side by side.
+    </p>
+
+    <h3>All-in-one script (recommended)</h3>
+    <div class="code-wrap">
+      <button class="copy-btn">Copy</button>
+      <pre><code>./scripts/dev.sh</code></pre>
+    </div>
+
+    <p>
+      The script waits for the sidecar to respond on
+      <code>http://127.0.0.1:7411/health</code> before launching the Tauri window, so the canvas
+      is never shown before the API is ready.
+    </p>
+
+    <h3>Manual: two terminals</h3>
+    <p>
+      Run each service independently when you need to attach a debugger or tail separate logs.
+    </p>
+
+    <p><strong>Terminal 1 — Python sidecar (port 7411)</strong></p>
+    <div class="code-wrap">
+      <button class="copy-btn">Copy</button>
+      <pre><code>cd packages/sidecar
+uv run uvicorn neuralflow.main:app --host 127.0.0.1 --port 7411 --reload</code></pre>
+    </div>
+
+    <p><strong>Terminal 2 — Tauri desktop app (Vite on port 1420)</strong></p>
+    <div class="code-wrap">
+      <button class="copy-btn">Copy</button>
+      <pre><code>cd apps/desktop
+pnpm tauri dev</code></pre>
+    </div>
+
+    <div class="callout callout-warn">
+      <strong>Warning:</strong> Start the sidecar before Tauri. If the desktop app loads before
+      port 7411 is listening, the canvas displays a connection error banner. Refresh the webview
+      with <kbd>Ctrl+R</kbd> / <kbd>Cmd+R</kbd> once the sidecar is up.
+    </div>
+
+    <h3>Configure API keys</h3>
+    <p>
+      Provider API keys are read from environment variables at sidecar startup. Set them in your
+      shell profile or in a <code>.env</code> file at the repository root.
+    </p>
+    <div class="code-wrap">
+      <button class="copy-btn">Copy</button>
+      <pre><code><span class="token-comment"># .env — never commit this file</span>
+NEURALFLOW_KEY_OPENAI=sk-...
+NEURALFLOW_KEY_ANTHROPIC=sk-ant-...
+NEURALFLOW_KEY_GROQ=gsk_...</code></pre>
+    </div>
+
+    <h2 id="first-workflow">Your First Workflow</h2>
+
+    <p>
+      Follow these steps to create and run a minimal two-agent pipeline inside NeuralFlow.
+    </p>
+
+    <ol class="steps">
+      <li>
+        <strong>Open the application.</strong> After <code>pnpm tauri dev</code> finishes
+        compiling, the NeuralFlow desktop window opens automatically and shows an empty canvas
+        with a dot-grid background.
+      </li>
+      <li>
+        <strong>Drag an Agent node.</strong> In the node palette on the left, find
+        <em>Agent</em> under the <em>Agent Nodes</em> category. Drag it onto the canvas and drop
+        it anywhere in the center.
+      </li>
+      <li>
+        <strong>Configure the node.</strong> Click the node to select it. The Properties panel
+        slides in from the right. Set the <code>model</code> field to <code>gpt-4o</code> and
+        enter a system prompt, for example:
+        <em>"You are a research assistant. Summarize the input concisely."</em>
+      </li>
+      <li>
+        <strong>Drag a second Agent node.</strong> Drop another Agent node to the right of the
+        first, leaving roughly 200 px of space between them.
+      </li>
+      <li>
+        <strong>Connect the nodes.</strong> Hover over the right edge of the first node until a
+        blue handle appears. Click and drag from that handle to the left edge of the second node.
+        A directed edge with an animated arrow confirms the connection.
+      </li>
+      <li>
+        <strong>Run the workflow.</strong> Click <strong>Run</strong> in the top toolbar (or press
+        <kbd>Shift+Enter</kbd>). Type any text into the input dialog and click
+        <strong>Submit</strong>. Each node animates while processing and shows a green badge when
+        complete. The output appears in the Run Output panel.
+      </li>
+    </ol>
+
+    <div class="callout callout-tip">
+      <strong>Tip:</strong> Save your workflow with <kbd>Ctrl+S</kbd> / <kbd>Cmd+S</kbd>.
+      NeuralFlow stores it in SQLite at
+      <code>~/.neuralflow/workspaces/default/data.db</code>. All run history is also persisted
+      there and can be replayed from the Run History panel.
+    </div>
+
+    <h2 id="troubleshooting">Troubleshooting</h2>
+
+    <p>The table below covers the most common issues encountered during initial setup.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Issue</th>
+            <th>Solution</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Port 7411 already in use</td>
+            <td>
+              <code>lsof -ti:7411 | xargs kill -9</code><br>
+              Windows: <code>netstat -ano | findstr :7411</code>, then
+              <code>taskkill /PID &lt;pid&gt; /F</code>
+            </td>
+          </tr>
+          <tr>
+            <td>Keychain error on API key retrieval</td>
+            <td>
+              Set the <code>NEURALFLOW_KEY_&lt;PROVIDER&gt;</code> environment variable as a
+              fallback. Example: <code>export NEURALFLOW_KEY_OPENAI=sk-...</code>
+            </td>
+          </tr>
+          <tr>
+            <td>Blank canvas / white screen</td>
+            <td>
+              Check that Vite started on port 1420. On Linux, ensure
+              <code>webkit2gtk-4.1</code> is installed:
+              <code>sudo apt install webkit2gtk-4.1</code>
+            </td>
+          </tr>
+          <tr>
+            <td><code>uv sync</code> fails with SSL error</td>
+            <td>
+              Set <code>SSL_CERT_FILE</code> to your CA bundle, or run
+              <code>uv sync --native-tls</code>.
+            </td>
+          </tr>
+          <tr>
+            <td>Rust compile error: "linker not found"</td>
+            <td>
+              Ubuntu/Debian: <code>sudo apt install build-essential</code><br>
+              macOS: <code>xcode-select --install</code>
+            </td>
+          </tr>
+          <tr>
+            <td>Node drag from palette does nothing</td>
+            <td>
+              The drop event uses the <code>dataTransfer</code> key
+              <code>"application/neuralflow-node"</code>. Under Wayland, try
+              <code>DISPLAY=:0 ./scripts/dev.sh</code> to force XWayland.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout callout-note">
+      <strong>Still stuck?</strong> Open an issue at
+      <a href="https://github.com/ssnelavala-masstcs/neuralflow/issues" target="_blank" rel="noopener">
+        github.com/ssnelavala-masstcs/neuralflow/issues
+      </a>
+      and include the output of <code>./scripts/dev.sh</code> plus your OS and Node/Python/Rust
+      versions.
+    </div>
+
+  </main>
+</div>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <h3>⚡ NeuralFlow</h3>
+      <p>Visual AI agent orchestration.<br>Local-first. Any model. No Docker.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Docs</h4>
+      <ul>
+        <li><a href="getting-started.html">Getting Started</a></li>
+        <li><a href="nodes.html">Node Reference</a></li>
+        <li><a href="concepts.html">Core Concepts</a></li>
+        <li><a href="api.html">API Reference</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Project</h4>
+      <ul>
+        <li><a href="https://github.com/ssnelavala-masstcs/neuralflow" target="_blank" rel="noopener">GitHub</a></li>
+        <li><a href="https://github.com/ssnelavala-masstcs/neuralflow/issues" target="_blank" rel="noopener">Issues</a></li>
+        <li><a href="https://github.com/ssnelavala-masstcs/neuralflow/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Contributing</a></li>
+        <li><a href="https://github.com/ssnelavala-masstcs/neuralflow/blob/main/LICENSE" target="_blank" rel="noopener">License (Apache 2.0)</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Community</h4>
+      <ul>
+        <li><a href="https://github.com/ssnelavala-masstcs/neuralflow/discussions" target="_blank" rel="noopener">Discussions</a></li>
+        <li><a href="https://github.com/ssnelavala-masstcs/neuralflow/releases" target="_blank" rel="noopener">Releases</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>Apache 2.0 © Stanley Sujith Nelavala</span>
+    <span>Built with Tauri v2 · React 19 · FastAPI</span>
+  </div>
+</footer>
+
+<script src="../assets/nav.js"></script>
+</body>
+</html>

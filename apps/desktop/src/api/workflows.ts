@@ -1,10 +1,16 @@
 import { api } from "./client";
-import type { CanvasData, Workflow, Workspace } from "@/types/workflow";
+import type { CanvasData, Workflow, Workspace, WorkspaceExport } from "@/types/workflow";
 
 export const workflowsApi = {
   listWorkspaces: () => api.get<Workspace[]>("/api/workspaces"),
-  createWorkspace: (name: string, description?: string) =>
-    api.post<Workspace>("/api/workspaces", { name, description }),
+  createWorkspace: (name: string, description?: string, settings?: Record<string, unknown>) =>
+    api.post<Workspace>("/api/workspaces", { name, description, settings }),
+  getWorkspace: (id: string) => api.get<Workspace>(`/api/workspaces/${id}`),
+  updateWorkspace: (id: string, data: Partial<{ name: string; description: string; settings: Record<string, unknown> }>) =>
+    api.patch<Workspace>(`/api/workspaces/${id}`, data),
+  deleteWorkspace: (id: string) => api.delete<void>(`/api/workspaces/${id}`),
+  exportWorkspace: (id: string) => api.get<WorkspaceExport>(`/api/workspaces/${id}/export`),
+  importWorkspace: (data: WorkspaceExport) => api.post<Workspace>("/api/workspaces/import", data),
 
   list: (workspaceId: string) =>
     api.get<Workflow[]>(`/api/workspaces/${workspaceId}/workflows`),

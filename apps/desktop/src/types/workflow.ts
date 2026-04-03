@@ -116,6 +116,14 @@ export interface Workspace {
   id: string;
   name: string;
   description: string | null;
+  settings: Record<string, unknown> | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface WorkspaceExport {
+  workspace_name: string;
+  workspace_description: string | null;
+  settings: Record<string, unknown> | null;
+  workflows: Array<Record<string, unknown>>;
 }
