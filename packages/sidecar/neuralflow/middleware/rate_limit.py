@@ -2,10 +2,11 @@
 
 import time
 from collections import defaultdict
-from typing import Callable
+from typing import Any
 
 from starlette.requests import Request
 from starlette.responses import JSONResponse
+from starlette.types import ASGIApp, Receive, Scope, Send
 
 
 class RateLimiter:
@@ -46,48 +47,47 @@ class RateLimiter:
         return True, 0
 
 
-# Module-level singleton configured at startup
-_rate_limiter: RateLimiter | None = None
+class RateLimitMiddleware:
+    """ASGI middleware that enforces per-IP rate limits."""
 
-
-def get_rate_limiter() -> RateLimiter:
-    global _rate_limiter
-    if _rate_limiter is None:
-        _rate_limiter = RateLimiter()
-    return _rate_limiter
-
-
-def build_rate_limit_middleware(
-    default_limit: int = 100,
-    window_seconds: int = 60,
-    overrides: dict[str, int] | None = None,
-) -> Callable:
-    """Return an ASGI middleware factory that enforces per-IP rate limits.
-
-    Usage in main.py::
-
-        app.add_middleware(
-            build_rate_limit_middleware(
-                default_limit=100,
-                window_seconds=60,
-                overrides={"/api/runs": 10},
-            )
+    def __init__(
+        self,
+        app: ASGIApp,
+        default_limit: int = 100,
+        window_seconds: int = 60,
+        overrides: dict[str, int] | None = None,
+    ) -> None:
+        self.app = app
+        self.limiter = RateLimiter(
+            default_limit=default_limit, window_seconds=window_seconds
         )
-    """
-    limiter = RateLimiter(default_limit=default_limit, window_seconds=window_seconds)
-    if overrides:
-        for prefix, limit in overrides.items():
-            limiter.set_limit(prefix, limit)
+        if overrides:
+            for prefix, limit in overrides.items():
+                self.limiter.set_limit(prefix, limit)
 
-    async def dispatch(request: Request, call_next):
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        if scope["type"] != "http":
+            await self.app(scope, receive, send)
+            return
+
+        request = Request(scope, receive)
         client_host = request.client.host if request.client else "unknown"
-        allowed, retry_after = limiter.is_allowed(client_host, request.url.path)
+        allowed, retry_after = self.limiter.is_allowed(
+            client_host, request.url.path
+        )
         if not allowed:
-            return JSONResponse(
+            response = JSONResponse(
                 status_code=429,
-                content={"error": {"code": "rate_limited", "message": "Too many requests. Please retry later.", "details": None}},
+                content={
+                    "error": {
+                        "code": "rate_limited",
+                        "message": "Too many requests. Please retry later.",
+                        "details": None,
+                    }
+                },
                 headers={"Retry-After": str(retry_after)},
             )
-        return await call_next(request)
+            await response(scope, receive, send)
+            return
 
-    return dispatch
+        await self.app(scope, receive, send)

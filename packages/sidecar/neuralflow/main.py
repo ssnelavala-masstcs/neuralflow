@@ -71,13 +71,12 @@ def _add_middleware(app: FastAPI) -> None:
         allow_headers=["Authorization", "Content-Type", "Accept"],
     )
 
-    from neuralflow.middleware.rate_limit import build_rate_limit_middleware
+    from neuralflow.middleware.rate_limit import RateLimitMiddleware
     app.add_middleware(
-        build_rate_limit_middleware(
-            default_limit=100,
-            window_seconds=60,
-            overrides={"/api/runs": 10},
-        )
+        RateLimitMiddleware,
+        default_limit=100,
+        window_seconds=60,
+        overrides={"/api/runs": 10},
     )
 
     from neuralflow.middleware.request_size import build_request_size_middleware
@@ -115,13 +114,12 @@ def create_app(testing: bool = False) -> FastAPI:
     )
 
     if not testing:
-        from neuralflow.middleware.rate_limit import build_rate_limit_middleware
+        from neuralflow.middleware.rate_limit import RateLimitMiddleware
         application.add_middleware(
-            build_rate_limit_middleware(
-                default_limit=100,
-                window_seconds=60,
-                overrides={"/api/runs": 10},
-            )
+            RateLimitMiddleware,
+            default_limit=100,
+            window_seconds=60,
+            overrides={"/api/runs": 10},
         )
 
         from neuralflow.middleware.request_size import build_request_size_middleware
