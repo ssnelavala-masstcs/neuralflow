@@ -13,17 +13,13 @@ jobs:
       matrix:
         include:
           - platform: macos-latest
-            args: '--target aarch64-apple-darwin --bundles dmg'
-            artifact-pattern: '*.dmg'
+            args: '--target aarch64-apple-darwin'
           - platform: macos-latest
-            args: '--target x86_64-apple-darwin --bundles dmg'
-            artifact-pattern: '*.dmg'
+            args: '--target x86_64-apple-darwin'
           - platform: ubuntu-22.04
-            args: '--bundles deb'
-            artifact-pattern: '*.deb'
+            args: ''
           - platform: windows-latest
-            args: '--bundles nsis'
-            artifact-pattern: '*.exe'
+            args: ''
 
     runs-on: ${{ matrix.platform }}
 
@@ -78,15 +74,15 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: List build output
+        run: find apps/desktop/src-tauri/target/release/bundle -type f 2>/dev/null || echo "No bundle dir found"
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: neuralflow-${{ matrix.platform }}-${{ github.ref_name }}
           path: |
-            apps/desktop/src-tauri/target/release/bundle/**/*.deb
-            apps/desktop/src-tauri/target/release/bundle/**/*.dmg
-            apps/desktop/src-tauri/target/release/bundle/**/*.exe
-            apps/desktop/src-tauri/target/release/bundle/**/*.msi
+            apps/desktop/src-tauri/target/release/bundle/
           retention-days: 30
 
   create-release:
@@ -104,8 +100,8 @@ jobs:
       - name: Flatten artifact structure
         run: |
           mkdir -p release-assets
-          find artifacts -type f -exec cp {} release-assets/ \;
-          ls -la release-assets/
+          find artifacts -type f \( -name "*.deb" -o -name "*.rpm" -o -name "*.dmg" -o -name "*.exe" -o -name "*.msi" -o -name "*.AppImage" \) -exec cp {} release-assets/ \;
+          ls -la release-assets/ || echo "No binaries found"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
