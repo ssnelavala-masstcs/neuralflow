@@ -14,16 +14,12 @@ jobs:
         include:
           - platform: macos-latest
             args: '--target aarch64-apple-darwin'
-            artifact-name: neuralflow-macos-aarch64
           - platform: macos-latest
             args: '--target x86_64-apple-darwin'
-            artifact-name: neuralflow-macos-x86_64
           - platform: ubuntu-22.04
             args: ''
-            artifact-name: neuralflow-linux-x86_64
           - platform: windows-latest
             args: ''
-            artifact-name: neuralflow-windows-x86_64
 
     runs-on: ${{ matrix.platform }}
 
@@ -68,7 +64,7 @@ jobs:
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.artifact-name }}
+          name: neuralflow-${{ matrix.platform }}
           path: |
             apps/desktop/src-tauri/target/release/bundle/**/*.deb
             apps/desktop/src-tauri/target/release/bundle/**/*.dmg
