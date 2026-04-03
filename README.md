@@ -5,15 +5,16 @@
 **Visual AI Agent Orchestration — Local, Private, Any Model**
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+[![Release](https://img.shields.io/github/v/release/ssnelavala-masstcs/neuralflow?color=00ffc8)](https://github.com/ssnelavala-masstcs/neuralflow/releases)
+[![Downloads](https://img.shields.io/github/downloads/ssnelavala-masstcs/neuralflow/total?color=00b4ff)](https://github.com/ssnelavala-masstcs/neuralflow/releases)
 [![Built with Tauri](https://img.shields.io/badge/Built%20with-Tauri%20v2-orange)](https://tauri.app)
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11+-blue)](https://python.org)
-[![Docs](https://img.shields.io/badge/Docs-GitHub%20Pages-blue)](https://ssnelavala-masstcs.github.io/neuralflow/)
-[![Release](https://img.shields.io/github/v/release/ssnelavala-masstcs/neuralflow?color=green)](https://github.com/ssnelavala-masstcs/neuralflow/releases)
+[![Docs](https://img.shields.io/badge/Docs-GitHub%20Pages-00ffc8)](https://ssnelavala-masstcs.github.io/neuralflow/)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
 > Build multi-agent AI workflows by drawing them. Runs entirely on your machine.
 
-[Features](#features) · [Quick Start](#quick-start) · [Architecture](#architecture) · [Contributing](#contributing)
+[Download](https://github.com/ssnelavala-masstcs/neuralflow/releases) · [Features](#features) · [Quick Start](#quick-start) · [Architecture](#architecture) · [Docs](https://ssnelavala-masstcs.github.io/neuralflow/) · [Contributing](#contributing)
 
 </div>
 
@@ -115,11 +116,24 @@ API keys stored in your **OS keychain** — never on disk.
 
 ## Quick Start
 
-> Full documentation: [ssnelavala-masstcs.github.io/neuralflow](https://ssnelavala-masstcs.github.io/neuralflow/)
+> 📖 Full documentation: [ssnelavala-masstcs.github.io/neuralflow](https://ssnelavala-masstcs.github.io/neuralflow/)
 
-### Prerequisites
+### Download Pre-built Binaries
+
+Grab the latest release for your platform:
+
+| Platform | Download |
+|----------|----------|
+| 🐧 Linux | [.deb](https://github.com/ssnelavala-masstcs/neuralflow/releases/latest) |
+| 🍎 macOS (Apple Silicon) | [.dmg](https://github.com/ssnelavala-masstcs/neuralflow/releases/latest) |
+| 🍎 macOS (Intel) | [.dmg](https://github.com/ssnelavala-masstcs/neuralflow/releases/latest) |
+| 🪟 Windows | [.exe](https://github.com/ssnelavala-masstcs/neuralflow/releases/latest) |
+
+### Build from Source
+
+**Prerequisites**
 - [Rust](https://rustup.rs/) (stable)
-- [Node.js 20+](https://nodejs.org) + [pnpm](https://pnpm.io)
+- [Node.js 22+](https://nodejs.org) + [pnpm](https://pnpm.io)
 - [Python 3.11+](https://python.org) + [uv](https://github.com/astral-sh/uv)
 
 ### Build from Source
