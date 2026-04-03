@@ -17,5 +17,5 @@ pub fn keychain_get(key: String) -> Result<String, String> {
 #[tauri::command]
 pub fn keychain_delete(key: String) -> Result<(), String> {
     let entry = Entry::new(SERVICE, &key).map_err(|e| e.to_string())?;
-    entry.delete_credential().map_err(|e| e.to_string())
+    entry.delete_password().map_err(|e| e.to_string())
 }

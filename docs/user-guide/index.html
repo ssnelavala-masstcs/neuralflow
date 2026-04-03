@@ -1,1 +1,247 @@
-HTML_PART_1
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User Guide — NeuralFlow</title>
+  <meta name="description" content="NeuralFlow user guide — learn how to build, run, and manage AI agent workflows." />
+  <link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+
+<!-- ── Navbar ──────────────────────────────────────────────── -->
+<nav class="nav">
+  <a href="../index.html" class="nav-logo"><div class="nav-logo-mark">N</div>NeuralFlow</a>
+  <ul class="nav-links">
+    <li><a href="../guide/getting-started.html">Docs</a></li>
+    <li><a href="../guide/nodes.html">Nodes</a></li>
+    <li><a href="../guide/concepts.html">Concepts</a></li>
+    <li><a href="../guide/api.html">API</a></li>
+  </ul>
+  <div class="nav-actions">
+    <button class="btn-theme" id="theme-btn" aria-label="Toggle theme">☀️</button>
+    <a href="https://github.com/ssnelavala-masstcs/neuralflow" class="btn-gh" target="_blank" rel="noopener">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.167 6.839 9.49.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.605-3.369-1.342-3.369-1.342-.454-1.155-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.03-2.683-.103-.253-.447-1.27.098-2.647 0 0 .84-.268 2.75 1.026A9.578 9.578 0 0 1 12 6.836a9.59 9.59 0 0 1 2.504.337c1.909-1.294 2.747-1.026 2.747-1.026.547 1.377.203 2.394.1 2.647.641.699 1.028 1.592 1.028 2.683 0 3.842-2.337 4.687-4.565 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.741 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
+      GitHub
+    </a>
+    <button class="hamburger" aria-label="Menu" aria-expanded="false">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+</nav>
+
+<!-- ── Layout ──────────────────────────────────────────────── -->
+<div class="page-wrap">
+
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-title">// User Guide</div>
+      <ul class="sidebar-nav">
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#canvas">The Canvas</a></li>
+        <li><a href="#nodes-panel">Nodes Panel</a></li>
+        <li><a href="#properties">Properties Panel</a></li>
+        <li><a href="#running">Running Workflows</a></li>
+        <li><a href="#run-history">Run History</a></li>
+        <li><a href="#memory-panel">Memory Panel</a></li>
+        <li><a href="#settings">Settings</a></li>
+      </ul>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-title">// Technical Docs</div>
+      <ul class="sidebar-nav">
+        <li><a href="../guide/getting-started.html">Getting Started</a></li>
+        <li><a href="../guide/nodes.html">Node Reference</a></li>
+        <li><a href="../guide/concepts.html">Core Concepts</a></li>
+        <li><a href="../guide/api.html">API Reference</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <main class="main-content">
+
+    <h1>User Guide</h1>
+    <p class="page-lead">
+      A visual walkthrough of the NeuralFlow desktop interface — the canvas, node palette,
+      properties panel, run history, memory management, and settings.
+    </p>
+
+    <!-- Overview -->
+    <h2 id="overview">Overview</h2>
+    <p>
+      NeuralFlow is a Tauri v2 desktop application. When you launch it, you'll see a full-screen
+      canvas with a dot-grid background, a node palette on the left, and a toolbar across the top.
+      The Python sidecar runs silently in the background on port 7411.
+    </p>
+
+    <div class="feature-grid" style="margin-top:24px;">
+      <div class="feature-card">
+        <div class="feature-icon">🖥️</div>
+        <h3>Canvas</h3>
+        <p>Drag-and-drop workspace where you build workflows by placing and connecting nodes.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📋</div>
+        <h3>Node Palette</h3>
+        <p>Left sidebar with all 10 node types organized by category: Agent, Tool, and Data nodes.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚙️</div>
+        <h3>Properties Panel</h3>
+        <p>Right sidebar that slides in when you select a node. Configure model, prompts, and parameters.</p>
+      </div>
+    </div>
+
+    <!-- Canvas -->
+    <h2 id="canvas">The Canvas</h2>
+    <p>
+      The canvas is your primary workspace. It displays all nodes in your current workflow as
+      draggable cards connected by directed edges (arrows).
+    </p>
+    <ul>
+      <li><strong>Pan:</strong> Click and drag on empty canvas space to pan the viewport.</li>
+      <li><strong>Zoom:</strong> Use the mouse scroll wheel or pinch-to-zoom on a trackpad.</li>
+      <li><strong>Select:</strong> Click a node to select it. The Properties panel opens on the right.</li>
+      <li><strong>Multi-select:</strong> Hold <kbd>Shift</kbd> and click to select multiple nodes.</li>
+      <li><strong>Delete:</strong> Press <kbd>Delete</kbd> or <kbd>Backspace</kbd> to remove selected nodes.</li>
+      <li><strong>Connect:</strong> Drag from an output handle (right edge) to an input handle (left edge) of another node.</li>
+    </ul>
+
+    <!-- Nodes Panel -->
+    <h2 id="nodes-panel">Nodes Panel</h2>
+    <p>
+      The node palette on the left side of the canvas lists all available node types grouped by
+      category. Drag any node onto the canvas to add it to your workflow.
+    </p>
+    <ul>
+      <li><strong>Agent Nodes:</strong> AgentNode, RouterNode, HumanNode</li>
+      <li><strong>Tool Nodes:</strong> ToolNode, McpNode</li>
+      <li><strong>Data Nodes:</strong> InputNode, OutputNode, TransformNode, FilterNode, AggregatorNode</li>
+    </ul>
+    <div class="callout callout-tip">
+      <strong>Tip:</strong> See the <a href="../guide/nodes.html">Node Reference</a> for a
+      complete description of every node type and its properties.
+    </div>
+
+    <!-- Properties -->
+    <h2 id="properties">Properties Panel</h2>
+    <p>
+      When you select a node on the canvas, the Properties panel slides in from the right. It
+      shows all configurable fields for that node type with inline validation and help text.
+    </p>
+    <ul>
+      <li><strong>Label:</strong> The display name shown on the canvas node card.</li>
+      <li><strong>Model:</strong> (AgentNode only) Select from available providers and models.</li>
+      <li><strong>System Prompt:</strong> The system message for LLM inference calls.</li>
+      <li><strong>Tools:</strong> Multi-select picker for built-in and MCP tools.</li>
+      <li><strong>Advanced:</strong> Temperature, max tokens, timeout, retries, and API key reference.</li>
+    </ul>
+
+    <!-- Running -->
+    <h2 id="running">Running Workflows</h2>
+    <p>
+      Click <strong>Run</strong> in the top toolbar or press <kbd>Shift+Enter</kbd> to execute
+      the current workflow. You'll be prompted for input text (the InputNode payload), then the
+      orchestrator begins execution.
+    </p>
+    <ol class="steps">
+      <li><strong>Input dialog:</strong> Type the initial text for your workflow and click <strong>Submit</strong>.</li>
+      <li><strong>Live execution:</strong> Each node card animates while processing. A green badge appears on completion.</li>
+      <li><strong>Streaming output:</strong> LLM responses stream in real-time. Tool calls and results appear inline.</li>
+      <li><strong>Completion:</strong> The Run Output panel shows the final result with cost breakdown.</li>
+    </ol>
+
+    <!-- Run History -->
+    <h2 id="run-history">Run History</h2>
+    <p>
+      Every workflow execution is saved. Open the Run History panel to browse past runs, view
+      per-node traces, and replay any run from a specific step.
+    </p>
+    <ul>
+      <li><strong>Replay:</strong> Re-run a past execution from any node in the chain.</li>
+      <li><strong>Compare:</strong> View side-by-side outputs from different runs.</li>
+      <li><strong>Export:</strong> Download run data as JSON for analysis.</li>
+    </ul>
+
+    <!-- Memory Panel -->
+    <h2 id="memory-panel">Memory Panel</h2>
+    <p>
+      The Memory panel lets you ingest documents and search them semantically using the built-in
+      RAG pipeline powered by <code>sqlite-vec</code>.
+    </p>
+    <ul>
+      <li><strong>Ingest:</strong> Upload TXT, MD, PDF, or DOCX files. They're chunked, embedded, and stored in SQLite.</li>
+      <li><strong>Search:</strong> Run semantic queries against your ingested documents.</li>
+      <li><strong>Collections:</strong> Organize documents into named collections for targeted retrieval.</li>
+    </ul>
+    <div class="callout callout-note">
+      <strong>Note:</strong> See <a href="../guide/concepts.html#memory-rag">Memory &amp; RAG</a>
+      in Core Concepts for the technical details on how embeddings and retrieval work.
+    </div>
+
+    <!-- Settings -->
+    <h2 id="settings">Settings</h2>
+    <p>
+      The Settings panel (gear icon in the toolbar) gives you access to workspace configuration,
+      provider management, and application preferences.
+    </p>
+    <ul>
+      <li><strong>Providers:</strong> Add, test, and remove LLM providers. API keys are stored in the OS keychain.</li>
+      <li><strong>Workspaces:</strong> Create and switch between workspaces. Each has its own SQLite database.</li>
+      <li><strong>Remote Sidecar:</strong> Connect to a sidecar running on a different machine (with auth token).</li>
+      <li><strong>Cost Alerts:</strong> Set a USD threshold to get warned when a single run exceeds it.</li>
+      <li><strong>MCP Servers:</strong> Configure Model Context Protocol server connections.</li>
+    </ul>
+
+    <div style="margin-top:48px;padding-top:24px;border-top:var(--border-subtle);display:flex;gap:16px;">
+      <a href="../guide/getting-started.html" class="btn-primary">[ EXECUTE ] — Getting Started</a>
+      <a href="https://github.com/ssnelavala-masstcs/neuralflow" class="btn-secondary" target="_blank" rel="noopener">[ SOURCE ]</a>
+    </div>
+
+  </main>
+</div>
+
+<!-- ── Footer ──────────────────────────────────────────────── -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <h3>>_ NeuralFlow</h3>
+      <p>Visual AI agent orchestration.<br>Local-first. Any model. No Docker.<br>
+        <a href="https://github.com/ssnelavala-masstcs/neuralflow" target="_blank" rel="noopener">github.com/ssnelavala-masstcs/neuralflow</a>
+      </p>
+    </div>
+    <div class="footer-col">
+      <h4>Docs</h4>
+      <ul>
+        <li><a href="../guide/getting-started.html">Getting Started</a></li>
+        <li><a href="../guide/nodes.html">Node Reference</a></li>
+        <li><a href="../guide/concepts.html">Core Concepts</a></li>
+        <li><a href="../guide/api.html">API Reference</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Project</h4>
+      <ul>
+        <li><a href="https://github.com/ssnelavala-masstcs/neuralflow" target="_blank" rel="noopener">GitHub</a></li>
+        <li><a href="https://github.com/ssnelavala-masstcs/neuralflow/issues" target="_blank" rel="noopener">Issues</a></li>
+        <li><a href="https://github.com/ssnelavala-masstcs/neuralflow/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Contributing</a></li>
+        <li><a href="https://github.com/ssnelavala-masstcs/neuralflow/blob/main/LICENSE" target="_blank" rel="noopener">License (Apache 2.0)</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Community</h4>
+      <ul>
+        <li><a href="https://github.com/ssnelavala-masstcs/neuralflow/discussions" target="_blank" rel="noopener">Discussions</a></li>
+        <li><a href="https://github.com/ssnelavala-masstcs/neuralflow/releases" target="_blank" rel="noopener">Releases</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>Apache 2.0 © Stanley Sujith Nelavala</span>
+    <span>Built with Tauri v2 · React 19 · FastAPI</span>
+  </div>
+</footer>
+
+<script src="../assets/nav.js"></script>
+</body>
+</html>

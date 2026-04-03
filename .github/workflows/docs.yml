@@ -1,0 +1,108 @@
+name: Docs Validation
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+    paths:
+      - "docs/**"
+  pull_request:
+    paths:
+      - "docs/**"
+  workflow_dispatch:
+
+jobs:
+  validate:
+    name: Validate docs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check HTML files exist and are non-empty
+        run: |
+          set -euo pipefail
+          errors=0
+          for f in docs/index.html docs/guide/*.html docs/user-guide/*.html; do
+            if [ ! -s "$f" ]; then
+              echo "ERROR: $f is missing or empty"
+              errors=$((errors + 1))
+            else
+              echo "OK: $f ($(wc -l < "$f") lines)"
+            fi
+          done
+          if [ "$errors" -gt 0 ]; then
+            echo "$errors file(s) failed validation"
+            exit 1
+          fi
+
+      - name: Validate HTML structure
+        run: |
+          set -euo pipefail
+          errors=0
+          for f in docs/index.html docs/guide/*.html docs/user-guide/*.html; do
+            # Check for required elements
+            if ! grep -q '<!DOCTYPE html>' "$f"; then
+              echo "ERROR: $f missing DOCTYPE"
+              errors=$((errors + 1))
+            fi
+            if ! grep -q '<title>' "$f"; then
+              echo "ERROR: $f missing <title>"
+              errors=$((errors + 1))
+            fi
+            if ! grep -q '</html>' "$f"; then
+              echo "ERROR: $f missing closing </html>"
+              errors=$((errors + 1))
+            fi
+            if ! grep -q 'style.css' "$f"; then
+              echo "ERROR: $f missing stylesheet link"
+              errors=$((errors + 1))
+            fi
+          done
+          if [ "$errors" -gt 0 ]; then
+            echo "$errors error(s) found"
+            exit 1
+          fi
+          echo "All HTML files valid"
+
+      - name: Check internal links
+        run: |
+          set -euo pipefail
+          errors=0
+          # Extract all internal hrefs (not http/https/mailto)
+          for f in docs/index.html docs/guide/*.html docs/user-guide/*.html; do
+            dir=$(dirname "$f")
+            # Find hrefs that don't start with http, https, mailto, #, or javascript
+            grep -oP 'href="[^"]*"' "$f" | grep -oP '"\K[^"]*' | while read -r href; do
+              # Skip external links, anchors, and javascript
+              if echo "$href" | grep -qE '^(https?:|mailto:|javascript:|#)'; then
+                continue
+              fi
+              # Resolve relative path
+              target="$dir/$href"
+              # Remove fragment
+              target="${target%%#*}"
+              if [ ! -f "$target" ]; then
+                echo "BROKEN LINK in $f -> $href (resolved: $target)"
+                echo "BROKEN" > /tmp/broken_links_found
+              fi
+            done
+          done
+          if [ -f /tmp/broken_links_found ]; then
+            rm -f /tmp/broken_links_found
+            exit 1
+          fi
+          echo "All internal links valid"
+
+      - name: Verify credits
+        run: |
+          set -euo pipefail
+          # Ensure Stanley Sujith Nelavala appears in every page footer
+          for f in docs/index.html docs/guide/*.html docs/user-guide/*.html; do
+            if ! grep -q "Stanley Sujith Nelavala" "$f"; then
+              echo "ERROR: $f missing author credit 'Stanley Sujith Nelavala'"
+              exit 1
+            fi
+          done
+          echo "All pages credited to Stanley Sujith Nelavala"

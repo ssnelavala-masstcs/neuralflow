@@ -9,12 +9,9 @@
 </head>
 <body>
 
-<!-- ── Navbar ──────────────────────────────────────────────────── -->
+<!-- ── Navbar ──────────────────────────────────────────────── -->
 <nav class="nav">
-  <a href="index.html" class="nav-logo">
-    <div class="nav-logo-mark">⚡</div>
-    NeuralFlow
-  </a>
+  <a href="index.html" class="nav-logo"><div class="nav-logo-mark">N</div>NeuralFlow</a>
   <ul class="nav-links">
     <li><a href="guide/getting-started.html">Docs</a></li>
     <li><a href="guide/nodes.html">Nodes</a></li>
@@ -24,7 +21,7 @@
   <div class="nav-actions">
     <button class="btn-theme" id="theme-btn" aria-label="Toggle theme">☀️</button>
     <a href="https://github.com/ssnelavala-masstcs/neuralflow" class="btn-gh" target="_blank" rel="noopener">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.167 6.839 9.49.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.605-3.369-1.342-3.369-1.342-.454-1.155-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.03-2.683-.103-.253-.447-1.27.098-2.647 0 0 .84-.268 2.75 1.026A9.578 9.578 0 0 1 12 6.836a9.59 9.59 0 0 1 2.504.337c1.909-1.294 2.747-1.026 2.747-1.026.547 1.377.203 2.394.1 2.647.641.699 1.028 1.592 1.028 2.683 0 3.842-2.337 4.687-4.565 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.741 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.167 6.839 9.49.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.605-3.369-1.342-3.369-1.342-.454-1.155-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.03-2.683-.103-.253-.447-1.27.098-2.647 0 0 .84-.268 2.75 1.026A9.578 9.578 0 0 1 12 6.836a9.59 9.59 0 0 1 2.504.337c1.909-1.294 2.747-1.026 2.747-1.026.547 1.377.203 2.394.1 2.647.641.699 1.028 1.592 1.028 2.683 0 3.842-2.337 4.687-4.565 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.741 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
       GitHub
     </a>
     <button class="hamburger" aria-label="Menu" aria-expanded="false">
@@ -33,279 +30,168 @@
   </div>
 </nav>
 
-<!-- ── Hero ────────────────────────────────────────────────────── -->
+<!-- ── Hero ────────────────────────────────────────────────── -->
 <section class="hero">
-  <div class="hero-badge animate-fade-up">
-    <span>✅</span> All 4 Phases Complete
-  </div>
+  <div class="hero-badge animate-fade-up">STATUS: ALL_PHASES_COMPLETE</div>
   <h1 class="animate-fade-up animate-delay-1">
-    Build Multi-Agent AI Workflows<br>by Drawing Them
+    Build Multi-Agent AI Workflows<br>by <span class="glitch" data-text="Drawing">Drawing</span> Them
   </h1>
   <p class="hero-sub animate-fade-up animate-delay-2">
-    NeuralFlow is a local-first desktop app for orchestrating AI agents visually.
-    Drag nodes, connect them, pick any model, and run — no Docker, no cloud account, no Python degree required.
+    Local-first desktop app for orchestrating AI agents visually. Drag nodes, connect them, pick any model, and run — no Docker, no cloud, no Python degree required.
   </p>
   <div class="hero-cta animate-fade-up animate-delay-3">
     <a href="guide/getting-started.html" class="btn-primary">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 3l14 9-14 9V3z"/></svg>
-      Get Started
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 3l14 9-14 9V3z"/></svg>
+      [ EXECUTE ]
     </a>
     <a href="https://github.com/ssnelavala-masstcs/neuralflow" class="btn-secondary" target="_blank" rel="noopener">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.167 6.839 9.49.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.605-3.369-1.342-3.369-1.342-.454-1.155-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.03-2.683-.103-.253-.447-1.27.098-2.647 0 0 .84-.268 2.75 1.026A9.578 9.578 0 0 1 12 6.836a9.59 9.59 0 0 1 2.504.337c1.909-1.294 2.747-1.026 2.747-1.026.547 1.377.203 2.394.1 2.647.641.699 1.028 1.592 1.028 2.683 0 3.842-2.337 4.687-4.565 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.741 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
-      View on GitHub
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.167 6.839 9.49.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.605-3.369-1.342-3.369-1.342-.454-1.155-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.03-2.683-.103-.253-.447-1.27.098-2.647 0 0 .84-.268 2.75 1.026A9.578 9.578 0 0 1 12 6.836a9.59 9.59 0 0 1 2.504.337c1.909-1.294 2.747-1.026 2.747-1.026.547 1.377.203 2.394.1 2.647.641.699 1.028 1.592 1.028 2.683 0 3.842-2.337 4.687-4.565 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.741 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
+      [ SOURCE ]
     </a>
   </div>
-</section>
 
-<!-- ── Canvas Mockup ────────────────────────────────────────────── -->
-<div style="max-width:900px;margin:0 auto;padding:0 24px;">
-  <div class="canvas-mockup">
+  <!-- Canvas mockup with 3D perspective tilt -->
+  <div class="canvas-mockup animate-fade-up animate-delay-3">
     <div class="canvas-mockup-bar">
       <div class="mockup-dot"></div>
       <div class="mockup-dot"></div>
       <div class="mockup-dot"></div>
-      <span class="mockup-title">NeuralFlow — research-assistant.nf</span>
+      <span class="mockup-title">neuralflow — canvas</span>
     </div>
-    <svg viewBox="0 0 800 360" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;background:#060d1f;">
-      <!-- Grid dots -->
-      <pattern id="dots" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
-        <circle cx="1" cy="1" r="0.8" fill="rgba(99,130,255,0.12)"/>
+    <svg viewBox="0 0 800 360" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;background:#060d1f;">
+      <!-- grid dots -->
+      <pattern id="dots" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+        <circle cx="2" cy="2" r="0.8" fill="rgba(0,255,200,0.08)"/>
       </pattern>
       <rect width="800" height="360" fill="url(#dots)"/>
-
+      <!-- Node 1 -->
+      <rect x="80" y="120" width="160" height="100" rx="0" fill="#0c0c14" stroke="rgba(0,255,200,0.25)" stroke-width="2"/>
+      <rect x="80" y="120" width="160" height="28" fill="rgba(0,255,200,0.06)"/>
+      <text x="96" y="140" fill="#00ffc8" font-family="monospace" font-size="11" font-weight="bold">🤖 AgentNode</text>
+      <text x="96" y="164" fill="#6a6a80" font-family="monospace" font-size="9">model: gpt-4o</text>
+      <text x="96" y="180" fill="#6a6a80" font-family="monospace" font-size="9">temp: 0.7</text>
+      <text x="96" y="196" fill="#6a6a80" font-family="monospace" font-size="9">retries: 2</text>
+      <!-- Node 2 -->
+      <rect x="340" y="80" width="160" height="100" rx="0" fill="#0c0c14" stroke="rgba(180,77,255,0.25)" stroke-width="2"/>
+      <rect x="340" y="80" width="160" height="28" fill="rgba(180,77,255,0.06)"/>
+      <text x="356" y="100" fill="#b44dff" font-family="monospace" font-size="11" font-weight="bold">🔀 RouterNode</text>
+      <text x="356" y="124" fill="#6a6a80" font-family="monospace" font-size="9">expr: data.score</text>
+      <text x="356" y="140" fill="#6a6a80" font-family="monospace" font-size="9">routes: pass/fail</text>
+      <!-- Node 3 -->
+      <rect x="560" y="140" width="160" height="100" rx="0" fill="#0c0c14" stroke="rgba(57,255,20,0.25)" stroke-width="2"/>
+      <rect x="560" y="140" width="160" height="28" fill="rgba(57,255,20,0.06)"/>
+      <text x="576" y="160" fill="#39ff14" font-family="monospace" font-size="11" font-weight="bold">📤 OutputNode</text>
+      <text x="576" y="184" fill="#6a6a80" font-family="monospace" font-size="9">format: markdown</text>
+      <text x="576" y="200" fill="#6a6a80" font-family="monospace" font-size="9">label: Final</text>
       <!-- Edges -->
+      <path d="M240 170 L340 130" stroke="rgba(0,255,200,0.35)" stroke-width="2" marker-end="url(#arrowCyan)"/>
+      <path d="M500 130 L560 190" stroke="rgba(180,77,255,0.35)" stroke-width="2" marker-end="url(#arrowPurple)"/>
       <defs>
-        <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-          <path d="M0,0 L0,6 L8,3 z" fill="rgba(79,142,247,0.6)"/>
+        <marker id="arrowCyan" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0 1 L8 5 L0 9Z" fill="rgba(0,255,200,0.5)"/>
+        </marker>
+        <marker id="arrowPurple" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0 1 L8 5 L0 9Z" fill="rgba(180,77,255,0.5)"/>
         </marker>
       </defs>
-      <!-- Trigger → Agent -->
-      <path d="M190,100 C230,100 240,100 280,100" stroke="rgba(79,142,247,0.5)" stroke-width="2" fill="none" marker-end="url(#arrow)" stroke-dasharray="none"/>
-      <!-- Agent → Tool -->
-      <path d="M430,100 C470,100 480,100 510,100" stroke="rgba(79,142,247,0.5)" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
-      <!-- Agent → Memory -->
-      <path d="M355,130 C355,180 355,200 355,230" stroke="rgba(155,109,255,0.5)" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
-      <!-- Tool → Output -->
-      <path d="M620,100 C660,100 670,100 510,240" stroke="rgba(52,211,153,0.4)" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
-      <!-- Memory → Output -->
-      <path d="M430,255 C470,255 480,255 510,255" stroke="rgba(155,109,255,0.4)" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
-
-      <!-- Trigger Node -->
-      <rect x="60" y="72" width="130" height="56" rx="10" fill="#0d1a30" stroke="rgba(251,191,36,0.7)" stroke-width="1.5"/>
-      <text x="75" y="97" font-family="Inter,sans-serif" font-size="11" fill="#fbbf24">⚡ Trigger</text>
-      <text x="75" y="114" font-family="Inter,sans-serif" font-size="10" fill="rgba(148,163,184,0.8)">Cron / Webhook</text>
-
-      <!-- Agent Node -->
-      <rect x="280" y="68" width="150" height="64" rx="10" fill="#0d1a30" stroke="rgba(79,142,247,0.8)" stroke-width="1.5"/>
-      <text x="296" y="95" font-family="Inter,sans-serif" font-size="11" fill="#7eb3ff">🤖 Research Agent</text>
-      <text x="296" y="112" font-family="Inter,sans-serif" font-size="10" fill="rgba(148,163,184,0.8)">gpt-4o · temperature 0.3</text>
-      <circle cx="425" cy="100" r="4" fill="rgba(79,142,247,0.3)" stroke="#4f8ef7" stroke-width="1"/>
-
-      <!-- Tool Node -->
-      <rect x="510" y="72" width="130" height="56" rx="10" fill="#0d1a30" stroke="rgba(52,211,153,0.6)" stroke-width="1.5"/>
-      <text x="526" y="97" font-family="Inter,sans-serif" font-size="11" fill="#34d399">🔧 Web Search</text>
-      <text x="526" y="114" font-family="Inter,sans-serif" font-size="10" fill="rgba(148,163,184,0.8)">Serper API</text>
-
-      <!-- Memory Node -->
-      <rect x="280" y="228" width="150" height="56" rx="10" fill="#0d1a30" stroke="rgba(155,109,255,0.6)" stroke-width="1.5"/>
-      <text x="296" y="253" font-family="Inter,sans-serif" font-size="11" fill="#c4a3ff">🧠 Memory</text>
-      <text x="296" y="270" font-family="Inter,sans-serif" font-size="10" fill="rgba(148,163,184,0.8)">RAG · sqlite-vec</text>
-
-      <!-- Output Node -->
-      <rect x="510" y="228" width="130" height="56" rx="10" fill="#0d1a30" stroke="rgba(56,217,245,0.6)" stroke-width="1.5"/>
-      <text x="526" y="253" font-family="Inter,sans-serif" font-size="11" fill="#38d9f5">📄 Output</text>
-      <text x="526" y="270" font-family="Inter,sans-serif" font-size="10" fill="rgba(148,163,184,0.8)">Markdown report</text>
-
-      <!-- Status badges -->
-      <rect x="700" y="20" width="80" height="28" rx="6" fill="rgba(52,211,153,0.1)" stroke="rgba(52,211,153,0.4)" stroke-width="1"/>
-      <text x="714" y="38" font-family="Inter,sans-serif" font-size="10" fill="#34d399">● Complete</text>
-
-      <!-- Mini label -->
-      <text x="16" y="350" font-family="Inter,sans-serif" font-size="9" fill="rgba(99,130,255,0.35)">NeuralFlow Canvas — Research Assistant workflow</text>
     </svg>
-  </div>
-</div>
-
-<!-- ── Feature Grid ─────────────────────────────────────────────── -->
-<section class="section">
-  <h2 class="section-title">Everything you need to build AI workflows</h2>
-  <p class="section-sub">From simple chains to complex multi-agent hierarchies — all visual, all local.</p>
-  <div class="feature-grid">
-
-    <div class="feature-card">
-      <div class="feature-icon">🎨</div>
-      <h3>Visual Canvas</h3>
-      <p>Infinite drag-and-drop canvas powered by React Flow. 10 node types, typed edges, auto-layout, undo/redo, mini-map, and a full properties panel for inline editing.</p>
-    </div>
-
-    <div class="feature-card">
-      <div class="feature-icon">🤖</div>
-      <h3>Any Model, Any Provider</h3>
-      <p>OpenAI, Anthropic, DeepSeek, Groq, Mistral, Gemini, AWS Bedrock, Ollama (local), LM Studio, and any OpenAI-compatible API — all via LiteLLM.</p>
-    </div>
-
-    <div class="feature-card">
-      <div class="feature-icon">🐛</div>
-      <h3>Step-through Debug Replay</h3>
-      <p>Load any past run, inspect every LLM call and tool result, and re-run from any step. Full run history with status, duration, and cost per node.</p>
-    </div>
-
-    <div class="feature-card">
-      <div class="feature-icon">🧠</div>
-      <h3>Memory &amp; RAG</h3>
-      <p>Memory nodes with a full RAG pipeline: document chunking, embedding, and semantic search backed by sqlite-vec. No external vector database needed.</p>
-    </div>
-
-    <div class="feature-card">
-      <div class="feature-icon">💰</div>
-      <h3>Cost Dashboard</h3>
-      <p>Per-node, per-agent, per-run cost breakdown from LiteLLM usage data. SVG charts by day, workflow, and model. CSV export and configurable cost alerts.</p>
-    </div>
-
-    <div class="feature-card">
-      <div class="feature-icon">🔌</div>
-      <h3>Plugin System</h3>
-      <p>Install custom node types and tools via Python packages with <code>neuralflow_plugins</code> entry points. Hot-reload plugins without restarting the app.</p>
-    </div>
-
   </div>
 </section>
 
-<!-- ── Comparison Table ─────────────────────────────────────────── -->
-<section class="section" style="padding-top:0;">
-  <h2 class="section-title">How NeuralFlow compares</h2>
-  <p class="section-sub">NeuralFlow is the only tool that checks every box.</p>
+<!-- ── Features ────────────────────────────────────────────── -->
+<section class="section">
+  <h2 class="section-title">Core Capabilities</h2>
+  <p class="section-sub">// Everything you need to build, run, and monitor AI agent workflows</p>
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="feature-icon">🧠</div>
+      <h3>Multi-Agent Orchestration</h3>
+      <p>Drag Agent, Router, and Human nodes onto a canvas. Connect them with directed edges. Run sequentially, hierarchically, or as a state machine.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔌</div>
+      <h3>Any Model, Any Provider</h3>
+      <p>OpenAI, Anthropic, Groq, Mistral, Gemini, Ollama, AWS Bedrock — swap models per-node via LiteLLM. No vendor lock-in.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">💾</div>
+      <h3>Local-First &amp; Private</h3>
+      <p>All data stays on your machine. SQLite workspace storage, OS keychain for API keys. No cloud dependency.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔍</div>
+      <h3>Built-In RAG &amp; Memory</h3>
+      <p>Ingest documents, embed with sqlite-vec, and search semantically — no external vector database required.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🛠️</div>
+      <h3>MCP Tool Integration</h3>
+      <p>Connect to any Model Context Protocol server. Give agents filesystem, web, and custom tool access.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📊</div>
+      <h3>Cost Tracking</h3>
+      <p>Every inference call is logged with token counts and USD cost. Set alerts and export analytics.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── Comparison ──────────────────────────────────────────── -->
+<section class="section">
+  <h2 class="section-title">How NeuralFlow Compares</h2>
+  <p class="section-sub">// NeuralFlow vs. other AI workflow tools</p>
   <div class="table-wrap">
     <table>
       <thead>
-        <tr>
-          <th>Tool</th>
-          <th>Visual UI</th>
-          <th>Real Multi-Agent</th>
-          <th>Local / Desktop</th>
-          <th>Any Model</th>
-          <th>Debug / Replay</th>
-          <th>Cost Tracking</th>
-        </tr>
+        <tr><th>Feature</th><th>NeuralFlow</th><th>LangFlow</th><th>Dify</th><th>n8n</th></tr>
       </thead>
       <tbody>
-        <tr>
-          <td>CrewAI</td>
-          <td class="cross">✗ Code only</td>
-          <td class="check">✓ Excellent</td>
-          <td class="check">✓</td>
-          <td class="partial">~ Partial</td>
-          <td class="cross">✗</td>
-          <td class="cross">✗</td>
-        </tr>
-        <tr>
-          <td>LangFlow</td>
-          <td class="check">✓</td>
-          <td class="partial">~ Weak</td>
-          <td class="cross">✗ Web only</td>
-          <td class="partial">~ Partial</td>
-          <td class="cross">✗</td>
-          <td class="cross">✗</td>
-        </tr>
-        <tr>
-          <td>Flowise</td>
-          <td class="check">✓</td>
-          <td class="partial">~ Weak</td>
-          <td class="partial">~ Partial</td>
-          <td class="check">✓</td>
-          <td class="cross">✗</td>
-          <td class="cross">✗</td>
-        </tr>
-        <tr>
-          <td>Dify</td>
-          <td class="check">✓</td>
-          <td class="check">✓ Good</td>
-          <td class="cross">✗ Docker</td>
-          <td class="check">✓</td>
-          <td class="cross">✗</td>
-          <td class="partial">~ Partial</td>
-        </tr>
-        <tr>
-          <td>AutoGen Studio</td>
-          <td class="partial">~ Partial</td>
-          <td class="check">✓ Good</td>
-          <td class="partial">~ Partial</td>
-          <td class="cross">✗</td>
-          <td class="cross">✗</td>
-          <td class="cross">✗</td>
-        </tr>
-        <tr class="neuralflow-row">
-          <td><strong>NeuralFlow</strong></td>
-          <td class="check">✓ Excellent</td>
-          <td class="check">✓ Excellent</td>
-          <td class="check">✓ Yes</td>
-          <td class="check">✓ Yes</td>
-          <td class="check">✓ Yes</td>
-          <td class="check">✓ Yes</td>
-        </tr>
+        <tr class="neuralflow-row"><td>Desktop app (Tauri)</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td>Local-first / offline</td><td class="check">✓</td><td class="partial">~</td><td class="cross">✗</td><td class="partial">~</td></tr>
+        <tr><td>Multi-agent (CrewAI)</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td>MCP client</td><td class="check">✓</td><td class="cross">✗</td><td class="partial">~</td><td class="cross">✗</td></tr>
+        <tr><td>Built-in RAG (sqlite-vec)</td><td class="check">✓</td><td class="partial">~</td><td class="check">✓</td><td class="cross">✗</td></tr>
+        <tr><td>Human-in-the-loop</td><td class="check">✓</td><td class="cross">✗</td><td class="partial">~</td><td class="partial">~</td></tr>
+        <tr><td>Cost tracking (USD)</td><td class="check">✓</td><td class="cross">✗</td><td class="check">✓</td><td class="cross">✗</td></tr>
+        <tr><td>No Docker required</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="partial">~</td></tr>
+        <tr><td>Plugin system</td><td class="check">✓</td><td class="partial">~</td><td class="partial">~</td><td class="check">✓</td></tr>
       </tbody>
     </table>
   </div>
 </section>
 
-<!-- ── Quick Start ──────────────────────────────────────────────── -->
-<section class="section" style="padding-top:0;">
-  <h2 class="section-title">Up and running in 3 commands</h2>
-  <p class="section-sub">Prerequisites: Rust, Node.js 20+, pnpm, Python 3.11+, uv.</p>
-  <div class="code-wrap" style="max-width:680px;margin:0 auto;">
+<!-- ── Quick Start ─────────────────────────────────────────── -->
+<section class="section">
+  <h2 class="section-title">Quick Start</h2>
+  <p class="section-sub">// Get running in under 2 minutes</p>
+  <div class="code-wrap">
     <button class="copy-btn">Copy</button>
     <pre><code><span class="token-comment"># 1. Clone</span>
-git clone https://github.com/ssnelavala-masstcs/neuralflow
-<span class="token-keyword">cd</span> neuralflow
+git clone https://github.com/ssnelavala-masstcs/neuralflow.git
+cd neuralflow
 
-<span class="token-comment"># 2. Install all dependencies</span>
-./scripts/setup-dev.sh
+<span class="token-comment"># 2. Install sidecar + frontend deps</span>
+pip install uv
+cd packages/sidecar && uv sync && cd ../..
+npm install -g pnpm
+cd apps/desktop && pnpm install && cd ../..
 
-<span class="token-comment"># 3. Launch (opens the desktop app automatically)</span>
+<span class="token-comment"># 3. Run</span>
 ./scripts/dev.sh</code></pre>
   </div>
-  <div style="text-align:center;margin-top:24px;">
-    <a href="guide/getting-started.html" class="btn-primary">Full Getting Started Guide →</a>
+  <div style="text-align:center;margin-top:32px;">
+    <a href="guide/getting-started.html" class="btn-primary">[ EXECUTE ] — Full Guide</a>
   </div>
 </section>
 
-<!-- ── Tech Stack ───────────────────────────────────────────────── -->
-<section class="section" style="padding-top:0;">
-  <h2 class="section-title">Built on excellent open-source</h2>
-  <div class="feature-grid" style="grid-template-columns:repeat(auto-fill,minmax(220px,1fr));">
-    <div class="feature-card" style="padding:20px 24px;">
-      <div style="font-size:0.75rem;color:var(--text-faint);margin-bottom:6px;">Desktop Shell</div>
-      <div style="font-weight:700;">Tauri v2 (Rust)</div>
-    </div>
-    <div class="feature-card" style="padding:20px 24px;">
-      <div style="font-size:0.75rem;color:var(--text-faint);margin-bottom:6px;">Frontend</div>
-      <div style="font-weight:700;">React 19 + TypeScript + Vite</div>
-    </div>
-    <div class="feature-card" style="padding:20px 24px;">
-      <div style="font-size:0.75rem;color:var(--text-faint);margin-bottom:6px;">Canvas</div>
-      <div style="font-weight:700;">React Flow / xyflow v12</div>
-    </div>
-    <div class="feature-card" style="padding:20px 24px;">
-      <div style="font-size:0.75rem;color:var(--text-faint);margin-bottom:6px;">Backend</div>
-      <div style="font-weight:700;">FastAPI + Python 3.11+</div>
-    </div>
-    <div class="feature-card" style="padding:20px 24px;">
-      <div style="font-size:0.75rem;color:var(--text-faint);margin-bottom:6px;">Model Routing</div>
-      <div style="font-weight:700;">LiteLLM (in-process)</div>
-    </div>
-    <div class="feature-card" style="padding:20px 24px;">
-      <div style="font-size:0.75rem;color:var(--text-faint);margin-bottom:6px;">Orchestration</div>
-      <div style="font-weight:700;">CrewAI + LangGraph</div>
-    </div>
-  </div>
-</section>
-
-<!-- ── Footer ───────────────────────────────────────────────────── -->
+<!-- ── Footer ──────────────────────────────────────────────── -->
 <footer class="footer">
   <div class="footer-inner">
     <div class="footer-brand">
-      <h3>⚡ NeuralFlow</h3>
-      <p>Visual AI agent orchestration.<br>Local-first. Any model. No Docker.</p>
+      <h3>>_ NeuralFlow</h3>
+      <p>Visual AI agent orchestration.<br>Local-first. Any model. No Docker.<br>
+        <a href="https://github.com/ssnelavala-masstcs/neuralflow" target="_blank" rel="noopener">github.com/ssnelavala-masstcs/neuralflow</a>
+      </p>
     </div>
     <div class="footer-col">
       <h4>Docs</h4>
