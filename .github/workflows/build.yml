@@ -13,13 +13,17 @@ jobs:
       matrix:
         include:
           - platform: macos-latest
-            args: '--target aarch64-apple-darwin'
+            args: '--target aarch64-apple-darwin --bundles dmg'
+            artifact-pattern: '*.dmg'
           - platform: macos-latest
-            args: '--target x86_64-apple-darwin'
+            args: '--target x86_64-apple-darwin --bundles dmg'
+            artifact-pattern: '*.dmg'
           - platform: ubuntu-22.04
-            args: ''
+            args: '--bundles deb'
+            artifact-pattern: '*.deb'
           - platform: windows-latest
-            args: ''
+            args: '--bundles nsis'
+            artifact-pattern: '*.exe'
 
     runs-on: ${{ matrix.platform }}
 
@@ -38,8 +42,6 @@ jobs:
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
       - name: Install Linux dependencies
         if: matrix.platform == 'ubuntu-22.04'
@@ -71,14 +73,67 @@ jobs:
         working-directory: apps/desktop
 
       - name: Build Tauri app
-        uses: tauri-apps/tauri-action@v0
+        run: pnpm tauri build ${{ matrix.args }}
+        working-directory: apps/desktop
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
         with:
-          projectPath: apps/desktop
-          tagName: ${{ github.ref_name }}
-          releaseName: 'NeuralFlow ${{ github.ref_name }}'
-          releaseBody: 'See CHANGELOG for details.'
-          releaseDraft: true
-          prerelease: false
-          args: ${{ matrix.args }}
+          name: neuralflow-${{ matrix.platform }}-${{ github.ref_name }}
+          path: |
+            apps/desktop/src-tauri/target/release/bundle/**/*.deb
+            apps/desktop/src-tauri/target/release/bundle/**/*.dmg
+            apps/desktop/src-tauri/target/release/bundle/**/*.exe
+            apps/desktop/src-tauri/target/release/bundle/**/*.msi
+          retention-days: 30
+
+  create-release:
+    needs: build-tauri
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Flatten artifact structure
+        run: |
+          mkdir -p release-assets
+          find artifacts -type f -exec cp {} release-assets/ \;
+          ls -la release-assets/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          files: release-assets/*
+          body: |
+            ## NeuralFlow ${{ github.ref_name }}
+
+            Visual AI Agent Orchestration — Local, Private, Any Model.
+
+            ### Downloads
+            - **Linux** (.deb) — Ubuntu, Debian, Pop!_OS
+            - **macOS** (.dmg) — Apple Silicon + Intel
+            - **Windows** (.exe) — Windows 10/11 (WebView2 required)
+
+            ### Install from source
+            ```bash
+            git clone https://github.com/ssnelavala-masstcs/neuralflow
+            cd neuralflow
+            ./scripts/setup-dev.sh
+            ./scripts/dev.sh
+            ```
+
+            Full changelog: [CHANGELOG.md](https://github.com/ssnelavala-masstcs/neuralflow/blob/main/CHANGELOG.md)
+
+            ---
+            Built by **Stanley Sujith Nelavala**
+            Repo: https://github.com/ssnelavala-masstcs/neuralflow
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
