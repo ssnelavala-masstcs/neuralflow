@@ -91,29 +91,29 @@ jobs:
         run: |
           mkdir -p release-assets
           find artifacts -type f \( -name "*.deb" -o -name "*.dmg" -o -name "*.exe" -o -name "*.msi" -o -name "*.AppImage" \) -exec cp {} release-assets/ \;
-          echo "=== Release assets ==="
           ls -lh release-assets/
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           draft: false
           prerelease: false
           files: release-assets/*
-          generate_release_notes: true
           body: |
             ## NeuralFlow ${{ github.ref_name }}
 
-            Visual AI Agent Orchestration — Local, Private, Any Model.
+            Visual AI Agent Orchestration - Local, Private, Any Model.
 
             ### Downloads
 
             | Platform | File |
             |----------|------|
-            | 🐧 Linux (.deb) | `NeuralFlow_*.deb` |
-            | 🍎 macOS (Apple Silicon) | `NeuralFlow_*_aarch64.dmg` |
-            | 🍎 macOS (Intel) | `NeuralFlow_*_x64.dmg` |
-            | 🪟 Windows (.exe) | `NeuralFlow_*_x64-setup.exe` |
+            | Linux (.deb) | NeuralFlow_*.deb |
+            | macOS (Apple Silicon) | NeuralFlow_*_aarch64.dmg |
+            | macOS (Intel) | NeuralFlow_*_x64.dmg |
+            | Windows (.exe) | NeuralFlow_*_x64-setup.exe |
 
             ### Install from source
 
@@ -126,11 +126,9 @@ jobs:
 
             ### Documentation
 
-            📖 [ssnelavala-masstcs.github.io/neuralflow](https://ssnelavala-masstcs.github.io/neuralflow/)
+            [ssnelavala-masstcs.github.io/neuralflow](https://ssnelavala-masstcs.github.io/neuralflow/)
 
             Full changelog: [CHANGELOG.md](https://github.com/ssnelavala-masstcs/neuralflow/blob/main/CHANGELOG.md)
 
             ---
-            Built by **[Stanley Sujith Nelavala](https://github.com/ssnelavala-masstcs/neuralflow)**
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            Built by Stanley Sujith Nelavala
