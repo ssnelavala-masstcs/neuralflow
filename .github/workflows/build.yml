@@ -45,91 +45,14 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev patchelf
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install uv
-        run: pip install uv
-
-      - name: Build Python sidecar
-        run: |
-          cd packages/sidecar
-          uv venv
-          uv pip install pyinstaller
-          uv pip install -e ".[tools]"
-          uv run pyinstaller --onefile --name neuralflow-sidecar neuralflow/main.py
-          mkdir -p ../../apps/desktop/src-tauri/binaries
-          cp dist/neuralflow-sidecar* ../../apps/desktop/src-tauri/binaries/
-        shell: bash
-
       - name: Install frontend deps
         run: pnpm install
         working-directory: apps/desktop
 
       - name: Build Tauri app
-        run: pnpm tauri build ${{ matrix.args }}
-        working-directory: apps/desktop
+        uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: List build output
-        run: find apps/desktop/src-tauri/target/release/bundle -type f 2>/dev/null || echo "No bundle dir found"
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
         with:
-          name: neuralflow-${{ matrix.platform }}-${{ github.ref_name }}
-          path: |
-            apps/desktop/src-tauri/target/release/bundle/
-          retention-days: 30
-
-  create-release:
-    needs: build-tauri
-    runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/')
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: artifacts
-
-      - name: Flatten artifact structure
-        run: |
-          mkdir -p release-assets
-          find artifacts -type f \( -name "*.deb" -o -name "*.rpm" -o -name "*.dmg" -o -name "*.exe" -o -name "*.msi" -o -name "*.AppImage" \) -exec cp {} release-assets/ \;
-          ls -la release-assets/ || echo "No binaries found"
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          draft: true
-          files: release-assets/*
-          body: |
-            ## NeuralFlow ${{ github.ref_name }}
-
-            Visual AI Agent Orchestration — Local, Private, Any Model.
-
-            ### Downloads
-            - **Linux** (.deb) — Ubuntu, Debian, Pop!_OS
-            - **macOS** (.dmg) — Apple Silicon + Intel
-            - **Windows** (.exe) — Windows 10/11 (WebView2 required)
-
-            ### Install from source
-            ```bash
-            git clone https://github.com/ssnelavala-masstcs/neuralflow
-            cd neuralflow
-            ./scripts/setup-dev.sh
-            ./scripts/dev.sh
-            ```
-
-            Full changelog: [CHANGELOG.md](https://github.com/ssnelavala-masstcs/neuralflow/blob/main/CHANGELOG.md)
-
-            ---
-            Built by **Stanley Sujith Nelavala**
-            Repo: https://github.com/ssnelavala-masstcs/neuralflow
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          projectPath: apps/desktop
+          args: ${{ matrix.args }}
