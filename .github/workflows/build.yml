@@ -58,9 +58,11 @@ jobs:
       - name: Build Python sidecar
         run: |
           cd packages/sidecar
-          uv venv
-          uv sync
-          uv run pyinstaller --onefile --name neuralflow-sidecar neuralflow/main.py
+          python -m venv .venv
+          source .venv/bin/activate
+          pip install pyinstaller
+          pip install -e .
+          pyinstaller --onefile --name neuralflow-sidecar neuralflow/main.py
           mkdir -p ../../apps/desktop/src-tauri/binaries
           cp dist/neuralflow-sidecar* ../../apps/desktop/src-tauri/binaries/
 
