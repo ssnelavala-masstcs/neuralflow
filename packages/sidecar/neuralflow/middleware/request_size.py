@@ -1,9 +1,8 @@
 """Request size limiting middleware."""
 
-from typing import Callable
-
 from starlette.requests import Request
 from starlette.responses import JSONResponse
+from starlette.types import ASGIApp, Receive, Scope, Send
 
 # 10 MB default, 50 MB for file-upload endpoints
 _DEFAULT_MAX_BYTES = 10 * 1024 * 1024
@@ -15,19 +14,27 @@ _UPLOAD_PATHS = frozenset({
 })
 
 
-def build_request_size_middleware(
-    default_max: int = _DEFAULT_MAX_BYTES,
-    upload_max: int = _UPLOAD_MAX_BYTES,
-    upload_paths: frozenset[str] | None = None,
-) -> Callable:
-    """Return an ASGI middleware that rejects oversized request bodies.
+class RequestSizeMiddleware:
+    """ASGI middleware that rejects oversized request bodies."""
 
-    Returns **413 Payload Too Large** when *Content-Length* exceeds the
-    configured threshold for the matched path.
-    """
-    upload = upload_paths if upload_paths is not None else _UPLOAD_PATHS
+    def __init__(
+        self,
+        app: ASGIApp,
+        default_max: int = _DEFAULT_MAX_BYTES,
+        upload_max: int = _UPLOAD_MAX_BYTES,
+        upload_paths: frozenset[str] | None = None,
+    ) -> None:
+        self.app = app
+        self.default_max = default_max
+        self.upload_max = upload_max
+        self.upload_paths = upload_paths if upload_paths is not None else _UPLOAD_PATHS
 
-    async def dispatch(request: Request, call_next):
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        if scope["type"] != "http":
+            await self.app(scope, receive, send)
+            return
+
+        request = Request(scope, receive)
         content_length = request.headers.get("content-length")
         if content_length is not None:
             try:
@@ -35,9 +42,9 @@ def build_request_size_middleware(
             except (ValueError, TypeError):
                 size = 0
 
-            limit = upload_max if request.url.path in upload else default_max
+            limit = self.upload_max if request.url.path in self.upload_paths else self.default_max
             if size > limit:
-                return JSONResponse(
+                response = JSONResponse(
                     status_code=413,
                     content={
                         "error": {
@@ -47,6 +54,7 @@ def build_request_size_middleware(
                         }
                     },
                 )
-        return await call_next(request)
+                await response(scope, receive, send)
+                return
 
-    return dispatch
+        await self.app(scope, receive, send)

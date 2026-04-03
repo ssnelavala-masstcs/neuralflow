@@ -79,8 +79,8 @@ def _add_middleware(app: FastAPI) -> None:
         overrides={"/api/runs": 10},
     )
 
-    from neuralflow.middleware.request_size import build_request_size_middleware
-    app.add_middleware(build_request_size_middleware())
+    from neuralflow.middleware.request_size import RequestSizeMiddleware
+    app.add_middleware(RequestSizeMiddleware)
 
     from neuralflow.middleware.error_handler import register_error_handler
     register_error_handler(app)
@@ -122,8 +122,8 @@ def create_app(testing: bool = False) -> FastAPI:
             overrides={"/api/runs": 10},
         )
 
-        from neuralflow.middleware.request_size import build_request_size_middleware
-        application.add_middleware(build_request_size_middleware())
+        from neuralflow.middleware.request_size import RequestSizeMiddleware
+        application.add_middleware(RequestSizeMiddleware)
 
     from neuralflow.middleware.error_handler import register_error_handler
     register_error_handler(application)
