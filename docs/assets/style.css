@@ -186,6 +186,18 @@ code, pre { font-family: var(--font-mono); font-size: 0.875em; }
   opacity: 0.35;
 }
 [data-theme="light"] .nav { background: rgba(245, 245, 250, 0.95); }
+/* Light theme: subtle dot-grid background for visual texture */
+[data-theme="light"] body::after {
+  background-image:
+    radial-gradient(circle, rgba(0, 100, 80, 0.08) 1px, transparent 1px);
+  background-size: 24px 24px;
+  animation: none;
+}
+/* Keep mockup dark in light mode — it's a terminal window */
+[data-theme="light"] .canvas-mockup {
+  background: #060d1f;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+}
 
 .nav-logo {
   display: flex;

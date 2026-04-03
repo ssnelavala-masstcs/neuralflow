@@ -186,31 +186,54 @@ cd apps/desktop && pnpm install && cd ../..
 
 <!-- ── Downloads ───────────────────────────────────────────── -->
 <section class="section">
-  <h2 class="section-title">Downloads</h2>
-  <p class="section-sub">// Grab the latest release for your platform</p>
-  <div class="feature-grid" style="max-width:700px;margin:0 auto;">
-    <div class="feature-card" style="text-align:center;">
-      <div class="feature-icon" style="margin:0 auto 16px;">🐧</div>
-      <h3>Linux</h3>
-      <p style="margin-bottom:16px;">.deb (Ubuntu/Debian) &amp; .rpm (Fedora/RHEL)</p>
-      <a href="https://github.com/ssnelavala-masstcs/neuralflow/releases" class="btn-secondary" target="_blank" rel="noopener" style="font-size:0.75rem;padding:10px 20px;">[ DOWNLOAD ]</a>
+  <h2 class="section-title">Get NeuralFlow</h2>
+  <p class="section-sub">// Build from source or grab a pre-built binary</p>
+
+  <div style="max-width:700px;margin:0 auto;">
+    <!-- Build from source — primary method -->
+    <div class="feature-card" style="margin-bottom:16px;">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
+        <div class="feature-icon">⚡</div>
+        <div>
+          <h3 style="margin:0;">Build from Source</h3>
+          <p style="margin:0;font-size:0.85rem;color:var(--text-muted);">Clone, install deps, and run. Works on Linux, macOS, and Windows.</p>
+        </div>
+      </div>
+      <div class="code-wrap" style="margin:0;">
+        <button class="copy-btn">Copy</button>
+        <pre><code>git clone https://github.com/ssnelavala-masstcs/neuralflow.git
+cd neuralflow
+./scripts/setup-dev.sh  <span class="token-comment"># install deps</span>
+./scripts/dev.sh        <span class="token-comment"># launch app</span></code></pre>
+      </div>
     </div>
-    <div class="feature-card" style="text-align:center;">
-      <div class="feature-icon" style="margin:0 auto 16px;">🍎</div>
-      <h3>macOS</h3>
-      <p style="margin-bottom:16px;">Universal binary (Apple Silicon + Intel)</p>
-      <a href="https://github.com/ssnelavala-masstcs/neuralflow/releases" class="btn-secondary" target="_blank" rel="noopener" style="font-size:0.75rem;padding:10px 20px;">[ DOWNLOAD ]</a>
+
+    <!-- Pre-built binaries -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;">
+      <div class="feature-card" style="text-align:center;padding:20px 16px;">
+        <div style="font-size:24px;margin-bottom:8px;">🐧</div>
+        <h3 style="font-size:0.9rem;">Linux</h3>
+        <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:12px;">.deb / .rpm</p>
+        <a href="https://github.com/ssnelavala-masstcs/neuralflow/releases" class="btn-secondary" target="_blank" rel="noopener" style="font-size:0.7rem;padding:8px 14px;">[ RELEASES ]</a>
+      </div>
+      <div class="feature-card" style="text-align:center;padding:20px 16px;">
+        <div style="font-size:24px;margin-bottom:8px;">🍎</div>
+        <h3 style="font-size:0.9rem;">macOS</h3>
+        <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:12px;">.dmg / .app</p>
+        <a href="https://github.com/ssnelavala-masstcs/neuralflow/releases" class="btn-secondary" target="_blank" rel="noopener" style="font-size:0.7rem;padding:8px 14px;">[ RELEASES ]</a>
+      </div>
+      <div class="feature-card" style="text-align:center;padding:20px 16px;">
+        <div style="font-size:24px;margin-bottom:8px;">🪟</div>
+        <h3 style="font-size:0.9rem;">Windows</h3>
+        <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:12px;">.exe / .msi</p>
+        <a href="https://github.com/ssnelavala-masstcs/neuralflow/releases" class="btn-secondary" target="_blank" rel="noopener" style="font-size:0.7rem;padding:8px 14px;">[ RELEASES ]</a>
+      </div>
     </div>
-    <div class="feature-card" style="text-align:center;">
-      <div class="feature-icon" style="margin:0 auto 16px;">🪟</div>
-      <h3>Windows</h3>
-      <p style="margin-bottom:16px;">.exe installer (x86_64, WebView2 required)</p>
-      <a href="https://github.com/ssnelavala-masstcs/neuralflow/releases" class="btn-secondary" target="_blank" rel="noopener" style="font-size:0.75rem;padding:10px 20px;">[ DOWNLOAD ]</a>
+
+    <div class="callout callout-note" style="text-align:center;">
+      <strong>Status:</strong> Pre-built binaries are produced by CI on version tags.
+      <a href="https://github.com/ssnelavala-masstcs/neuralflow/releases" target="_blank" rel="noopener">Check releases →</a>
     </div>
-  </div>
-  <div class="callout callout-note" style="max-width:700px;margin:24px auto 0;text-align:center;">
-    <strong>Note:</strong> Releases are built automatically on version tags via CI.
-    <a href="https://github.com/ssnelavala-masstcs/neuralflow/releases" target="_blank" rel="noopener">View all releases →</a>
   </div>
 </section>
 

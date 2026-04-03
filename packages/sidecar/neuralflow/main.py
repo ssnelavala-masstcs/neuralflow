@@ -24,73 +24,116 @@ async def lifespan(app: FastAPI):
     logger.info("sidecar_shutdown")
 
 
-app = FastAPI(
-    title="NeuralFlow Sidecar",
-    version="0.1.0",
-    lifespan=lifespan,
-    docs_url="/docs",
-    redoc_url=None,
-)
+def _register_routers(app: FastAPI) -> None:
+    """Attach all API routers to the app."""
+    from neuralflow.api.health import router as health_router
+    from neuralflow.api.workflows import router as workflows_router
+    from neuralflow.api.providers import router as providers_router
+    from neuralflow.api.runs import router as runs_router
+    from neuralflow.api.tools import router as tools_router
+    from neuralflow.api.mcp import router as mcp_router
+    from neuralflow.api.templates import router as templates_router
+    from neuralflow.api.analytics import router as analytics_router
+    from neuralflow.api.memory import router as memory_router
+    from neuralflow.api.scheduling import router as scheduling_router
+    from neuralflow.api.export import router as export_router
+    from neuralflow.api.snapshots import router as snapshots_router
+    from neuralflow.api.evaluation import router as evaluation_router
+    from neuralflow.api.auth import router as auth_router
+    from neuralflow.api.plugins import router as plugins_router
+    from neuralflow.api.sharing import router as sharing_router
 
-# ── CORS — explicit methods and headers ──────────────────────────────────────
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=settings.cors_origins,
-    allow_credentials=True,
-    allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
-    allow_headers=["Authorization", "Content-Type", "Accept"],
-)
+    app.include_router(health_router)
+    app.include_router(workflows_router)
+    app.include_router(providers_router)
+    app.include_router(runs_router)
+    app.include_router(tools_router)
+    app.include_router(mcp_router)
+    app.include_router(templates_router)
+    app.include_router(analytics_router)
+    app.include_router(memory_router)
+    app.include_router(scheduling_router)
+    app.include_router(export_router)
+    app.include_router(snapshots_router)
+    app.include_router(evaluation_router)
+    app.include_router(auth_router)
+    app.include_router(plugins_router)
+    app.include_router(sharing_router)
 
-# ── Rate limiting ─────────────────────────────────────────────────────────────
-from neuralflow.middleware.rate_limit import build_rate_limit_middleware
 
-app.add_middleware(
-    build_rate_limit_middleware(
-        default_limit=100,
-        window_seconds=60,
-        overrides={"/api/runs": 10},
+def _add_middleware(app: FastAPI) -> None:
+    """Attach all middleware to the app."""
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.cors_origins,
+        allow_credentials=True,
+        allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+        allow_headers=["Authorization", "Content-Type", "Accept"],
     )
-)
 
-# ── Request size limiting ─────────────────────────────────────────────────────
-from neuralflow.middleware.request_size import build_request_size_middleware
+    from neuralflow.middleware.rate_limit import build_rate_limit_middleware
+    app.add_middleware(
+        build_rate_limit_middleware(
+            default_limit=100,
+            window_seconds=60,
+            overrides={"/api/runs": 10},
+        )
+    )
 
-app.add_middleware(build_request_size_middleware())
+    from neuralflow.middleware.request_size import build_request_size_middleware
+    app.add_middleware(build_request_size_middleware())
 
-# ── Global error handler ──────────────────────────────────────────────────────
-from neuralflow.middleware.error_handler import register_error_handler
+    from neuralflow.middleware.error_handler import register_error_handler
+    register_error_handler(app)
 
-register_error_handler(app)
 
-# ── Register routers ──────────────────────────────────────────────────────────
-from neuralflow.api.health import router as health_router
-from neuralflow.api.workflows import router as workflows_router
-from neuralflow.api.providers import router as providers_router
-from neuralflow.api.runs import router as runs_router
-from neuralflow.api.tools import router as tools_router
-from neuralflow.api.mcp import router as mcp_router
-from neuralflow.api.templates import router as templates_router
-from neuralflow.api.analytics import router as analytics_router
-from neuralflow.api.memory import router as memory_router
-from neuralflow.api.scheduling import router as scheduling_router
-from neuralflow.api.export import router as export_router
-from neuralflow.api.snapshots import router as snapshots_router
-from neuralflow.api.evaluation import router as evaluation_router
-from neuralflow.api.auth import router as auth_router
+def create_app(testing: bool = False) -> FastAPI:
+    """Factory function to create the FastAPI application.
 
-app.include_router(health_router)
-app.include_router(workflows_router)
-app.include_router(providers_router)
-app.include_router(runs_router)
-app.include_router(tools_router)
-app.include_router(mcp_router)
-app.include_router(templates_router)
-app.include_router(analytics_router)
-app.include_router(memory_router)
-app.include_router(scheduling_router)
-app.include_router(export_router)
-app.include_router(snapshots_router)
-app.include_router(evaluation_router)
-app.include_router(auth_router)
+    Args:
+        testing: If True, skip lifespan (no DB init, no scheduler) and skip
+            middleware (rate limiter, request size) so tests can use the
+            ASGI test client without Starlette middleware compatibility issues.
+    """
+    app_lifespan = None if testing else lifespan
 
+    application = FastAPI(
+        title="NeuralFlow Sidecar",
+        version="0.1.0",
+        lifespan=app_lifespan,
+        docs_url="/docs",
+        redoc_url=None,
+    )
+
+    # CORS is always needed for the Tauri webview
+    application.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.cors_origins,
+        allow_credentials=True,
+        allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+        allow_headers=["Authorization", "Content-Type", "Accept"],
+    )
+
+    if not testing:
+        from neuralflow.middleware.rate_limit import build_rate_limit_middleware
+        application.add_middleware(
+            build_rate_limit_middleware(
+                default_limit=100,
+                window_seconds=60,
+                overrides={"/api/runs": 10},
+            )
+        )
+
+        from neuralflow.middleware.request_size import build_request_size_middleware
+        application.add_middleware(build_request_size_middleware())
+
+    from neuralflow.middleware.error_handler import register_error_handler
+    register_error_handler(application)
+
+    _register_routers(application)
+    return application
+
+
+# Default app instance for production (uvicorn neuralflow.main:app)
+app = create_app()
 logger.info("sidecar_ready")

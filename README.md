@@ -8,16 +8,12 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![Built with Tauri](https://img.shields.io/badge/Built%20with-Tauri%20v2-orange)](https://tauri.app)
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11+-blue)](https://python.org)
-[![Phase 1 Complete](https://img.shields.io/badge/Phase%201-Complete-brightgreen)](docs/PRD.md)
-[![Phase 2 Complete](https://img.shields.io/badge/Phase%202-Complete-brightgreen)](docs/PRD.md)
-[![Phase 3 Complete](https://img.shields.io/badge/Phase%203-Complete-brightgreen)](docs/PRD.md)
-[![Phase 4 Complete](https://img.shields.io/badge/Phase%204-Complete-brightgreen)](docs/PRD.md)
 [![Docs](https://img.shields.io/badge/Docs-GitHub%20Pages-blue)](https://ssnelavala-masstcs.github.io/neuralflow/)
 [![Release](https://img.shields.io/github/v/release/ssnelavala-masstcs/neuralflow?color=green)](https://github.com/ssnelavala-masstcs/neuralflow/releases)
 
 > Build multi-agent AI workflows by drawing them. Runs entirely on your machine.
 
-[Features](#features) · [Quick Start](#quick-start) · [Architecture](#architecture) · [Roadmap](#roadmap) · [Contributing](#contributing)
+[Features](#features) · [Quick Start](#quick-start) · [Architecture](#architecture) · [Contributing](#contributing)
 
 </div>
 
@@ -27,15 +23,11 @@
 
 NeuralFlow is an open-source desktop application for visually orchestrating AI agents. Drag nodes onto a canvas, connect them, pick your model, and run. No Docker. No cloud account. No Python degree required.
 
-It bridges the gap that every existing tool leaves open:
-
-| Tool | Visual UI | Real Multi-Agent | Local/Desktop | Any Model | Debug/Replay | Cost Tracking |
-|------|-----------|-----------------|---------------|-----------|--------------|---------------|
+| Tool | Visual UI | Multi-Agent | Local/Desktop | Any Model | Debug/Replay | Cost Tracking |
+|------|-----------|-------------|---------------|-----------|--------------|---------------|
 | CrewAI | No (code only) | Excellent | Yes | Partial | No | No |
 | LangFlow | Yes | Weak | No (web) | Partial | No | No |
-| Flowise | Yes | Weak | Partial | Yes | No | No |
 | Dify | Yes | Good | No (Docker) | Yes | No | Partial |
-| AutoGen Studio | Partial | Good | Partial | No | No | No |
 | **NeuralFlow** | **Yes** | **Excellent** | **Yes** | **Yes** | **Yes** | **Yes** |
 
 ---
@@ -44,11 +36,10 @@ It bridges the gap that every existing tool leaves open:
 
 ### Visual Canvas
 - Infinite drag-and-drop canvas powered by [React Flow](https://reactflow.dev)
-- **10 node types**: Agent, Task, Tool, Trigger, Router, Memory, Human Checkpoint, Aggregator, Output, Subflow
-- Connect nodes with typed edges (data, control, conditional)
+- **10 node types**: Agent, Router, Human, Tool, MCP, Input, Output, Transform, Filter, Aggregator
+- Connect nodes with directed edges — data flows automatically
 - Auto-layout, undo/redo, copy/paste, multi-select
-- Mini-map for large workflows
-- **Properties Panel**: Right sidebar for inline editing of any node's configuration (model, prompt, temperature, tools, conditions, etc.)
+- Properties panel for inline editing of every node's configuration
 
 ### Any Model, Any Provider
 Powered by [LiteLLM](https://github.com/BerriAI/litellm) — one interface to all of them:
@@ -63,66 +54,62 @@ Powered by [LiteLLM](https://github.com/BerriAI/litellm) — one interface to al
 | Google | Gemini 2.0 Flash, Gemini 2.5 Pro |
 | AWS Bedrock | Claude, Llama, Titan |
 | Ollama (local) | Llama 3.2, Qwen 2.5, Phi-4, any model |
-| LM Studio (local) | Any GGUF model |
 | Any OpenAI-compatible API | Custom base URL |
 
-**Provider Settings UI**: Add, edit, test, and remove providers with a visual modal. API keys stored securely in your OS keychain.
+API keys stored in your **OS keychain** — never on disk.
 
 ### Multi-Agent Orchestration
-- **Sequential** — agents run one after another
-- **Parallel** — independent branches run concurrently
+- **Sequential** — topological sort, left-to-right execution
 - **Hierarchical** — manager agent delegates to workers via [CrewAI](https://github.com/crewAIInc/crewAI)
 - **State Machine** — loops and conditional branching via [LangGraph](https://github.com/langchain-ai/langgraph)
+- **Auto** — NeuralFlow inspects the graph and picks the right mode
 
 ### Built-in Tools
 - Web search (Serper / Tavily / DuckDuckGo)
 - File read/write (sandboxed to `~/neuralflow-files/`)
 - HTTP requests (GET/POST/PUT/DELETE)
-- Calculator (safe expression evaluator)
-- **MCP Protocol**: connect any [Model Context Protocol](https://modelcontextprotocol.io) server (stdio, SSE, HTTP)
+- Code execution, shell access
+- **MCP Protocol**: connect any [Model Context Protocol](https://modelcontextprotocol.io) server (stdio, SSE)
 
 ### Live Run Log
-- Real-time SSE stream of all agent activity as it happens
-- Per-node status badges (idle / running / complete / error)
-- Tool call and result inspection inline
-- Run cancel mid-execution
+- Real-time SSE stream of all agent activity
+- Per-node status badges (idle → running → complete → error)
+- Tool call inspection inline
+- Cancel mid-execution
 
 ### Cost Tracking
-- Per-node, per-agent, per-run cost breakdown from LiteLLM usage data
-- Cumulative cost charts by day / workflow / model with SVG bar charts
-- Per-model cost table with CSV export
+- Per-node, per-run cost breakdown from LiteLLM
+- Cost charts by day / workflow / model
+- CSV export
 
 ### Debugging & Observability
-- **Step-through Debug Replay**: Load any past run, inspect LLM calls and tool results, re-run from any step
-- **Run History**: Persistent log of all runs with status, duration, and cost
-- **Version History**: Snapshot your workflow at any point, rollback to previous versions
-- **Visual Diff Viewer**: Compare two workflow versions side-by-side or in unified view, see exactly what nodes/edges changed
+- **Step-through Debug Replay**: Load any past run, re-run from any step
+- **Run History**: Persistent log with status, duration, and cost
+- **Version History**: Snapshot workflows, rollback to previous versions
+- **Visual Diff Viewer**: Compare two workflow versions side-by-side
 
 ### Template Gallery
-- **5 Built-in Templates**: Research Assistant, Content Writer, Code Reviewer, Data Analyzer, Web Scraper
-- **Community Templates**: Browse, search, and import templates shared via GitHub Gist
-- **Tag Filtering**: Filter templates by category (research, content, devtools, data, etc.)
+- 5 built-in templates: Research Assistant, Content Writer, Code Reviewer, Data Analyzer, Web Scraper
+- Community templates via GitHub Gist import
 
 ### Plugin System
-- Install custom node types and tools via Python packages with `neuralflow_plugins` entry points
-- Plugin browser shows installed plugins, their node types, tools, and load status
-- Hot-reload plugins without restarting the app
+- Install custom node types and tools via Python packages
+- Hot-reload plugins without restarting
 
 ### Privacy First
-- API keys stored in **OS keychain** (macOS Keychain, Windows Credential Manager, Linux libsecret) — never on disk
+- All data stays on your machine
 - Sidecar listens only on `127.0.0.1`
 - No telemetry by default
 - Works fully offline with Ollama
 
 ### Security
-- **Rate limiting**: Per-IP sliding window (100 req/min general, 10 req/min for workflow execution)
-- **Request size limits**: 10 MB default, 50 MB for uploads
-- **Input validation**: Pydantic schemas with `extra="forbid"`, max-length constraints, pattern validation
-- **CORS hardening**: Explicit methods and headers (no wildcards)
-- **Structured logging**: JSON logs with sensitive data redaction (API keys, tokens)
-- **Error handling**: Consistent JSON error format, no stack trace leakage
-- **Auth tokens**: SHA-256 hashed tokens for remote sidecar access
-- **SQL injection safe**: SQLAlchemy ORM with parameterized queries throughout
+- Rate limiting: per-IP sliding window
+- Request size limits: 10 MB default
+- Input validation: Pydantic schemas with `extra="forbid"`
+- CORS hardening: explicit methods and headers (no wildcards)
+- Structured logging with sensitive data redaction
+- Auth tokens: SHA-256 hashed for remote sidecar access
+- SQL injection safe: SQLAlchemy ORM with parameterized queries
 
 ---
 
@@ -130,43 +117,40 @@ Powered by [LiteLLM](https://github.com/BerriAI/litellm) — one interface to al
 
 > Full documentation: [ssnelavala-masstcs.github.io/neuralflow](https://ssnelavala-masstcs.github.io/neuralflow/)
 
-### Build from Source
-
-**Prerequisites**
+### Prerequisites
 - [Rust](https://rustup.rs/) (stable)
 - [Node.js 20+](https://nodejs.org) + [pnpm](https://pnpm.io)
 - [Python 3.11+](https://python.org) + [uv](https://github.com/astral-sh/uv)
+
+### Build from Source
 
 ```bash
 # 1. Clone the repo
 git clone https://github.com/ssnelavala-masstcs/neuralflow
 cd neuralflow
 
-# 2. Install all dependencies (frontend + sidecar)
+# 2. Install all dependencies
 ./scripts/setup-dev.sh
 
-# 3. Start development server
+# 3. Launch the app
 ./scripts/dev.sh
 ```
 
-The app opens automatically. The Python sidecar starts on `localhost:7411`.
+The desktop window opens automatically. The Python sidecar starts on `localhost:7411`.
 
 ### Starter Templates
 
-Five workflow templates are included out of the box:
+Five workflow templates ship out of the box:
 
 | Template | What it does |
 |----------|-------------|
-| `research-assistant` | Web search → structured summary report |
-| `content-writer` | Outline planner → SEO-optimized blog post |
-| `code-reviewer` | Parallel security + quality review → consolidated report |
-| `data-analyzer` | File reader → statistical analysis report |
-| `web-scraper` | HTTP fetch → content extraction → saved summary |
+| `research-assistant` | Web search → structured summary |
+| `content-writer` | Outline planner → SEO blog post |
+| `code-reviewer` | Parallel security + quality review |
+| `data-analyzer` | File reader → statistical analysis |
+| `web-scraper` | HTTP fetch → content extraction |
 
-Load any template via the **Templates** menu or the API:
-```bash
-curl -X POST "http://localhost:7411/api/templates/research-assistant.json/import?workspace_id=<id>"
-```
+Load any template via the **Templates** menu in the app.
 
 ---
 
@@ -179,10 +163,8 @@ curl -X POST "http://localhost:7411/api/templates/research-assistant.json/import
 │                                                  │
 │  ┌───────────────────────────────────────────┐  │
 │  │         React Frontend (Webview)          │  │
-│  │                                           │  │
 │  │   Canvas (React Flow) │ UI (Tailwind)    │  │
 │  │   State (Zustand)     │ API Client        │  │
-│  │   Properties Panel    │ Template Gallery  │  │
 │  └───────────────────────────────────────────┘  │
 │                                                  │
 │  ┌───────────────────────────────────────────┐  │
@@ -196,33 +178,25 @@ curl -X POST "http://localhost:7411/api/templates/research-assistant.json/import
 │          Python Sidecar (FastAPI :7411)            │
 │                                                    │
 │  Execution Engine                                  │
-│  ├── Sequential/Parallel Executor  ✅              │
-│  ├── CrewAI Executor (hierarchical)  ✅            │
-│  └── LangGraph Executor (state machines) ✅        │
+│  ├── Sequential Executor          ✅              │
+│  ├── CrewAI Executor (hierarchical) ✅            │
+│  └── LangGraph Executor (state machine) ✅        │
 │                                                    │
-│  LiteLLM (in-process, all model providers) ✅      │
-│  MCP Client (stdio · SSE · HTTP)  ✅               │
-│  Built-in Tools (search, file, HTTP, calc) ✅      │
-│  SQLite + SQLAlchemy (all persistence)  ✅         │
-│  APScheduler (triggers)  ✅                        │
-│  Plugin Loader (entry points)  ✅                  │
-│  Code Exporter (CrewAI · LangGraph) ✅             │
-│  Replay Engine (step-through debug) ✅             │
-│  Memory + RAG (chunking · embedding · search) ✅   │
+│  LiteLLM · MCP Client · Built-in Tools            │
+│  SQLite + SQLAlchemy · APScheduler                │
+│  Plugin Loader · Replay Engine · Memory + RAG     │
 └───────────────────────────────────────────────────┘
 ```
 
 ### Key Design Decisions
 
-**Tauri v2 over Electron**: 3-10 MB binary vs 80-150 MB. OS-native webview. Rust backend for secure keychain access and process management.
+**Tauri v2 over Electron**: 3–10 MB binary vs 80–150 MB. OS-native webview. Rust backend for secure keychain access.
 
-**Python sidecar over Node.js backend**: Gives access to the entire Python AI ecosystem (CrewAI, LangGraph, LiteLLM, ChromaDB, Playwright). Started by `scripts/dev.sh`, communicates via localhost HTTP + SSE.
+**Python sidecar**: Full access to the Python AI ecosystem (CrewAI, LangGraph, LiteLLM). Communicates via localhost HTTP + SSE.
 
-**LiteLLM in-process**: Not a separate proxy server — imported directly in the sidecar. Every new model provider LiteLLM supports is automatically available in NeuralFlow with zero code changes.
+**LiteLLM in-process**: Not a separate proxy — imported directly. Every new model LiteLLM supports is automatically available.
 
-**CrewAI + LangGraph as executors, not reimplemented**: NeuralFlow translates its visual workflow JSON into CrewAI/LangGraph primitives at runtime. When those frameworks add features, NeuralFlow inherits them.
-
-**SQLite only**: No Postgres, no Redis, no external services. One `.db` file per workspace at `~/.neuralflow/workspaces/default/data.db`. Works offline. Trivial to back up.
+**SQLite only**: No Postgres, no Redis. One `.db` file per workspace. Works offline. Trivial to back up.
 
 ---
 
@@ -230,44 +204,26 @@ curl -X POST "http://localhost:7411/api/templates/research-assistant.json/import
 
 ```
 neuralflow/
-├── apps/
-│   └── desktop/              # Tauri application
-│       ├── src-tauri/        # Rust backend (keychain IPC, Tauri config)
-│       └── src/              # React frontend
-│           ├── canvas/       # React Flow nodes, edges, canvas logic
-│           ├── components/   # UI components
-│           │   ├── cost/     # Cost dashboard with charts
-│           │   ├── debug/    # Run history & step debugger
-│           │   ├── export/   # Code export modal (CrewAI/LangGraph)
-│           │   ├── layout/   # AppShell, Sidebar, BottomPanel
-│           │   ├── palette/  # Node drag palette
-│           │   ├── plugins/  # Plugin browser
-│           │   ├── properties/ # PropertiesPanel + node forms
-│           │   ├── run/      # Run log & run modal
-│           │   ├── settings/ # Provider settings modal
-│           │   ├── sharing/  # Share modal, template gallery
-│           │   └── version/  # Version history + visual diff viewer
-│           ├── stores/       # Zustand state stores
-│           ├── api/          # FastAPI client
-│           └── types/        # TypeScript type definitions
+├── apps/desktop/              # Tauri v2 desktop app
+│   ├── src-tauri/             # Rust backend (keychain, config)
+│   └── src/                   # React 19 + TypeScript frontend
+│       ├── canvas/            # React Flow nodes, edges, canvas
+│       ├── components/        # UI components (cost, debug, properties…)
+│       ├── stores/            # Zustand state stores
+│       └── api/               # FastAPI client
 │
-├── packages/
-│   └── sidecar/              # Python FastAPI backend
-│       └── neuralflow/
-│           ├── api/          # FastAPI routers
-│           ├── execution/    # Orchestrator, executors, code exporter, replay engine
-│           ├── tools/        # Built-in tool implementations + registry
-│           ├── mcp/          # MCP connection pool (stdio + SSE/HTTP)
-│           ├── memory/       # RAG pipeline (chunking, embedding, search)
-│           ├── plugins/      # Plugin loader (entry points)
-│           ├── scheduling/   # APScheduler integration
-│           ├── models/       # SQLAlchemy ORM models
-│           └── schemas/      # Pydantic request/response schemas
+├── packages/sidecar/          # Python FastAPI backend
+│   └── neuralflow/
+│       ├── api/               # FastAPI routers
+│       ├── execution/         # Orchestrator, executors, replay
+│       ├── tools/             # Built-in tools + registry
+│       ├── mcp/               # MCP connection pool
+│       ├── memory/            # RAG pipeline (sqlite-vec)
+│       └── plugins/           # Plugin loader
 │
-├── templates/                # 5 starter workflow JSON files
-├── docs/                     # PRD and architecture docs
-│   └── PRD.md
-└── scripts/                  # Dev setup and build scripts
+├── templates/                 # 5 starter workflow templates
+├── docs/                      # Documentation (GitHub Pages)
+└── scripts/                   # Dev setup scripts
 ```
 
 ---
@@ -277,68 +233,15 @@ neuralflow/
 | Layer | Technology |
 |-------|-----------|
 | Desktop shell | [Tauri v2](https://tauri.app) (Rust) |
-| Frontend framework | React 19 + TypeScript + Vite |
-| Visual canvas | [React Flow / xyflow v12](https://reactflow.dev) |
-| UI components | [shadcn/ui](https://ui.shadcn.com) + Tailwind CSS v3 |
-| State management | [Zustand v5](https://zustand-demo.pmnd.rs) + Immer |
-| Backend framework | [FastAPI](https://fastapi.tiangolo.com) + Python 3.11+ |
-| Multi-agent (hierarchical) | [CrewAI](https://crewai.com) |
-| Multi-agent (state machine) | [LangGraph](https://langchain-ai.github.io/langgraph) |
+| Frontend | React 19 + TypeScript + Vite |
+| Canvas | [React Flow / xyflow v12](https://reactflow.dev) |
+| UI | [shadcn/ui](https://ui.shadcn.com) + Tailwind CSS v3 |
+| State | [Zustand v5](https://zustand-demo.pmnd.rs) + Immer |
+| Backend | [FastAPI](https://fastapi.tiangolo.com) + Python 3.11+ |
+| Multi-agent | [CrewAI](https://crewai.com) + [LangGraph](https://langchain-ai.github.io/langgraph) |
 | Model routing | [LiteLLM](https://litellm.ai) |
-| Database | SQLite + [SQLAlchemy 2.0](https://sqlalchemy.org) + aiosqlite |
-| MCP client | [MCP Python SDK](https://github.com/modelcontextprotocol/python-sdk) |
-| Scheduling | APScheduler |
-| Package manager | pnpm (frontend) + uv (Python) |
-
----
-
-## Roadmap
-
-### Phase 1 — Core MVP ✅ Complete
-- [x] Tauri v2 shell + Python sidecar lifecycle
-- [x] React Flow canvas with all 10 node types
-- [x] Model provider management (LiteLLM integration)
-- [x] Sequential workflow execution with SSE streaming
-- [x] Built-in tools (web search, file ops, HTTP, calculator)
-- [x] MCP server integration (stdio + SSE/HTTP)
-- [x] Live run log + per-node status visualization
-- [x] Basic cost tracking (per-node, per-run)
-- [x] Workflow save/load (JSON)
-- [x] 5 starter templates
-- [x] OS keychain API key storage
-
-### Phase 2 — Power Features ✅ Complete
-- [x] PropertiesPanel: inline editing of agent model/prompt/temperature
-- [x] Provider settings modal UI
-- [x] CrewAI hierarchical executor
-- [x] LangGraph state machine executor
-- [x] Step-through debug replay
-- [x] Memory nodes + RAG pipeline (sqlite-vec)
-- [x] Cost dashboard with charts and alerts
-- [x] Cron + webhook triggers
-- [x] Human-in-the-loop nodes
-
-### Phase 3 — Ecosystem ✅ Complete
-- [x] Export to CrewAI Python code
-- [x] Export to LangGraph Python code
-- [x] Workflow version history + visual diff
-- [x] Plugin API (custom node types)
-- [x] Community template gallery
-- [x] Workflow sharing via GitHub Gist
-
-### Phase 4 — Scale ✅ Complete
-- [x] Evaluation framework (A/B test workflows)
-- [x] Multi-workspace profiles
-- [x] Remote execution option (optional, self-hosted)
-- [x] Rate limiting middleware
-- [x] Request size limits
-- [x] Structured JSON logging
-- [x] Global error handler
-- [x] Input validation hardening
-- [x] CORS hardening
-- [x] Auth token system for remote sidecar
-- [x] Error boundaries
-- [x] Keyboard shortcuts
+| Database | SQLite + [SQLAlchemy 2.0](https://sqlalchemy.org) |
+| MCP | [MCP Python SDK](https://github.com/modelcontextprotocol/python-sdk) |
 
 ---
 
@@ -366,8 +269,6 @@ You can use NeuralFlow commercially, fork it, build products on top of it. Attri
 
 ## Acknowledgements
 
-NeuralFlow is built on the shoulders of excellent open-source projects:
-
 - [React Flow / xyflow](https://github.com/xyflow/xyflow) — the canvas engine
 - [Tauri](https://github.com/tauri-apps/tauri) — the desktop shell
 - [LiteLLM](https://github.com/BerriAI/litellm) — model routing
@@ -380,6 +281,6 @@ NeuralFlow is built on the shoulders of excellent open-source projects:
 
 <div align="center">
 
-Built by **Stanley Sujith Nelavala** with assistance from **Claude Sonnet 4.6** (`claude-sonnet-4-6`) · [S&L Tech](https://github.com/ssnelavala-masstcs/neuralflow)
+Built by **[Stanley Sujith Nelavala](https://github.com/ssnelavala-masstcs/neuralflow)**
 
 </div>
