@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
 import { X, Plus, Trash2, CheckCircle, XCircle, Loader2, Eye, EyeOff, Key } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useProviderStore } from "@/stores/providerStore";
+import { useProviderStore, type ModelTestResult } from "@/stores/providerStore";
 import { providersApi } from "@/api/providers";
 import type { Provider, ProviderType } from "@/types/provider";
 
 const PROVIDER_TYPES: { value: ProviderType; label: string; color: string }[] = [
   { value: "openai", label: "OpenAI", color: "text-green-500" },
   { value: "anthropic", label: "Anthropic", color: "text-purple-500" },
+  { value: "openrouter", label: "OpenRouter", color: "text-indigo-500" },
   { value: "groq", label: "Groq", color: "text-yellow-500" },
   { value: "mistral", label: "Mistral", color: "text-orange-500" },
   { value: "deepseek", label: "DeepSeek", color: "text-blue-500" },
@@ -25,7 +26,7 @@ interface ProviderSettingsModalProps {
 }
 
 export function ProviderSettingsModal({ open, onClose }: ProviderSettingsModalProps) {
-  const { providers, connectionStatus, load, addProvider, removeProvider, testProvider } = useProviderStore();
+  const { providers, connectionStatus, modelTestResults, load, addProvider, removeProvider, testProvider } = useProviderStore();
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showApiKey, setShowApiKey] = useState<Record<string, boolean>>({});
@@ -109,6 +110,7 @@ export function ProviderSettingsModal({ open, onClose }: ProviderSettingsModalPr
                   key={p.id}
                   provider={p}
                   status={connectionStatus[p.id] ?? "untested"}
+                  modelResults={modelTestResults[p.id] ?? []}
                   showKey={showApiKey[p.id] ?? false}
                   onToggleKey={() => setShowApiKey((s) => ({ ...s, [p.id]: !s[p.id] }))}
                   onTest={() => handleTest(p.id)}
@@ -154,7 +156,7 @@ export function ProviderSettingsModal({ open, onClose }: ProviderSettingsModalPr
 
               <div>
                 <label className="text-xs font-medium text-foreground mb-1 block">Default Model <span className="text-muted-foreground">(optional)</span></label>
-                <input className="w-full rounded-md border border-input bg-background px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-ring" value={formDefaultModel} onChange={(e) => setFormDefaultModel(e.target.value)} placeholder="gpt-4o" />
+                <input className="w-full rounded-md border border-input bg-background px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-ring" value={formDefaultModel} onChange={(e) => setFormDefaultModel(e.target.value)} placeholder="gpt-4o, gpt-4o-mini, o3-mini" />
               </div>
 
               <div className="flex justify-end gap-2 pt-2">
@@ -180,10 +182,11 @@ export function ProviderSettingsModal({ open, onClose }: ProviderSettingsModalPr
 /* ─── Provider Card ─── */
 
 function ProviderCard({
-  provider, status, showKey, onToggleKey, onTest, onDelete, onEdit, isEditing,
+  provider, status, modelResults, showKey, onToggleKey, onTest, onDelete, onEdit, isEditing,
 }: {
   provider: Provider;
   status: "ok" | "error" | "untested" | "testing";
+  modelResults: ModelTestResult[];
   showKey: boolean;
   onToggleKey: () => void;
   onTest: () => void;
@@ -218,15 +221,15 @@ function ProviderCard({
             <span className="text-xs text-muted-foreground truncate">{provider.name}</span>
           </div>
           <div className="text-[10px] text-muted-foreground mt-0.5 space-x-2">
-            {provider.default_model && <span>Model: {provider.default_model}</span>}
+            {provider.default_model && <span>Models: {provider.default_model}</span>}
             {provider.base_url && <span>URL: {provider.base_url}</span>}
-            {provider.api_key_ref && <span className="flex items-center gap-0.5 inline"><Key className="h-2.5 w-2.5" /> Key stored</span>}
+            {provider.api_key_ref && <span className="inline-flex items-center gap-0.5"><Key className="h-2.5 w-2.5" /> Key stored</span>}
           </div>
         </div>
 
         {/* Actions */}
         <div className="flex items-center gap-1 shrink-0">
-          <button onClick={handleTest} disabled={testLoading} className="rounded-md p-1.5 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors disabled:opacity-50" title="Test connection">
+          <button onClick={handleTest} disabled={testLoading} className="rounded-md p-1.5 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors disabled:opacity-50" title="Test all models">
             {testLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle className="h-3.5 w-3.5" />}
           </button>
           <button onClick={onDelete} className="rounded-md p-1.5 text-muted-foreground hover:text-destructive hover:bg-accent transition-colors" title="Remove">
@@ -234,6 +237,26 @@ function ProviderCard({
           </button>
         </div>
       </div>
+
+      {/* Per-model test results */}
+      {modelResults.length > 0 && (
+        <div className="mt-2 pt-2 border-t border-border space-y-1">
+          {modelResults.map((r) => (
+            <div key={r.model} className="flex items-center gap-2 text-[10px]">
+              {r.ok
+                ? <CheckCircle className="h-3 w-3 text-green-500 shrink-0" />
+                : <XCircle className="h-3 w-3 text-red-500 shrink-0" />}
+              <span className="font-mono truncate flex-1 text-muted-foreground">{r.model}</span>
+              {r.ok && r.latency_ms != null && (
+                <span className="text-green-500 shrink-0">{r.latency_ms}ms</span>
+              )}
+              {!r.ok && r.error && (
+                <span className="text-red-400 truncate max-w-[160px]" title={r.error}>{r.error}</span>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

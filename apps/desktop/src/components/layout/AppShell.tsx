@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Play, Settings, Cpu, StopCircle, Code2, PanelRightOpen, PanelRightClose, LayoutGrid, Globe } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { Play, Settings, Cpu, StopCircle, Code2, PanelRightOpen, PanelRightClose, LayoutGrid, Globe, Undo2, Redo2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Sidebar } from "./Sidebar";
 import { BottomPanel } from "./BottomPanel";
@@ -9,6 +9,11 @@ import { ExportModal } from "@/components/export/ExportModal";
 import { PropertiesPanel } from "@/components/properties/PropertiesPanel";
 import { ProviderSettingsModal } from "@/components/settings/ProviderSettingsModal";
 import { RemoteConnectionSettings } from "@/components/settings/RemoteConnectionSettings";
+import { ErrorToast } from "@/components/error/ErrorToast";
+import { CommandPalette } from "@/components/palette/CommandPalette";
+import { ConnectionStatus } from "@/components/connection/ConnectionStatus";
+import { NotificationCenter } from "@/components/notifications/NotificationCenter";
+import { connectionManager } from "@/utils/connectionManager";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useWorkflowStore } from "@/stores/workflowStore";
 import { useRunStore } from "@/stores/runStore";
@@ -27,9 +32,16 @@ export function AppShell({ onNavigateTemplates }: AppShellProps) {
   const [showProviderSettings, setShowProviderSettings] = useState(false);
   const [showProperties, setShowProperties] = useState(false);
   const [showRemoteSettings, setShowRemoteSettings] = useState(false);
-  const { loadWorkflows, activeWorkflowId, workflows } = useWorkflowStore();
+  const [showCommandPalette, setShowCommandPalette] = useState(false);
+  const { loadWorkflows, activeWorkflowId, workflows, undo, redo, canUndo, canRedo, validate } = useWorkflowStore();
   const { runStatus, cancelRun } = useRunStore();
   const { sidecarReady, setSidecarReady, connectionStatus } = useSettingsStore();
+
+  // Start connection manager
+  useEffect(() => {
+    connectionManager.start();
+    return () => connectionManager.stop();
+  }, []);
 
   // Bootstrap: ensure default workspace + load workflows
   useEffect(() => {
@@ -56,7 +68,10 @@ export function AppShell({ onNavigateTemplates }: AppShellProps) {
       { key: "Enter", ctrl: true, handler: () => { if (activeWorkflowId && sidecarReady && !isRunning) setRunModalOpen(true); } },
       { key: "s", ctrl: true, handler: () => { /* save handled by PropertiesPanel */ } },
       { key: "p", ctrl: true, handler: () => setShowProperties((s) => !s) },
-      { key: "Escape", handler: () => { if (showProperties) setShowProperties(false); if (showExportModal) setShowExportModal(false); } },
+      { key: "k", ctrl: true, handler: () => setShowCommandPalette((s) => !s) },
+      { key: "z", ctrl: true, handler: () => { undo(); } },
+      { key: "z", ctrl: true, shift: true, handler: () => { redo(); } },
+      { key: "Escape", handler: () => { if (showCommandPalette) setShowCommandPalette(false); if (showProperties) setShowProperties(false); if (showExportModal) setShowExportModal(false); } },
     ],
   });
 
@@ -64,9 +79,9 @@ export function AppShell({ onNavigateTemplates }: AppShellProps) {
   const activeWorkflow = workflows.find((w) => w.id === activeWorkflowId);
 
   return (
-    <div className="flex h-screen flex-col bg-background overflow-hidden">
+    <div className="flex h-full flex-col bg-background overflow-hidden">
       {/* Title bar */}
-      <header className="flex h-10 items-center gap-2 border-b border-border px-3 shrink-0 bg-card">
+      <header className="relative z-20 flex h-10 items-center gap-2 border-b border-border px-3 shrink-0 bg-card">
         <Cpu className="h-4 w-4 text-primary" />
         <span className="text-sm font-semibold">NeuralFlow</span>
         {activeWorkflow && (
@@ -77,21 +92,26 @@ export function AppShell({ onNavigateTemplates }: AppShellProps) {
         )}
 
         <div className="ml-auto flex items-center gap-2">
+          <ConnectionStatus />
           {!sidecarReady && (
             <span className="text-xs text-yellow-500 animate-pulse">Connecting to sidecar…</span>
           )}
-          {connectionStatus === "connected" && (
-            <span className="text-xs text-green-500 flex items-center gap-1">
-              <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
-              Remote
-            </span>
-          )}
-          {connectionStatus === "error" && (
-            <span className="text-xs text-red-500 flex items-center gap-1">
-              <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
-              Remote error
-            </span>
-          )}
+          <button
+            onClick={() => undo()}
+            disabled={!canUndo}
+            className="rounded-md p-1.5 text-muted-foreground hover:text-foreground hover:bg-accent disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            title="Undo (Ctrl+Z)"
+          >
+            <Undo2 className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => redo()}
+            disabled={!canRedo}
+            className="rounded-md p-1.5 text-muted-foreground hover:text-foreground hover:bg-accent disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            title="Redo (Ctrl+Shift+Z)"
+          >
+            <Redo2 className="h-4 w-4" />
+          </button>
           {isRunning ? (
             <button
               onClick={cancelRun}
@@ -157,16 +177,17 @@ export function AppShell({ onNavigateTemplates }: AppShellProps) {
           >
             <Globe className="h-4 w-4" />
           </button>
+          <NotificationCenter />
         </div>
       </header>
 
       {/* Main layout */}
       <div className="flex flex-1 overflow-hidden">
         <Sidebar />
-        <div className="flex flex-1 flex-col overflow-hidden">
+        <div className="flex flex-1 flex-col overflow-hidden min-w-0">
           {/* Canvas */}
-          <div className="flex-1 overflow-hidden">
-            <Canvas />
+          <div className="flex-1 overflow-hidden min-w-0">
+            <Canvas onNodeSelect={() => setShowProperties(true)} />
           </div>
           {/* Bottom panel */}
           <div className="h-52 border-t border-border shrink-0">
@@ -183,6 +204,15 @@ export function AppShell({ onNavigateTemplates }: AppShellProps) {
       )}
       <ProviderSettingsModal open={showProviderSettings} onClose={() => setShowProviderSettings(false)} />
       <RemoteConnectionSettings open={showRemoteSettings} onClose={() => setShowRemoteSettings(false)} />
+      <ErrorToast />
+      <CommandPalette
+        open={showCommandPalette}
+        onClose={() => setShowCommandPalette(false)}
+        onShowProperties={() => setShowProperties(true)}
+        onShowExport={() => setShowExportModal(true)}
+        onShowSettings={() => setShowProviderSettings(true)}
+        onShowRemoteSettings={() => setShowRemoteSettings(true)}
+      />
     </div>
   );
 }

@@ -1,7 +1,6 @@
 """Global exception handler — consistent JSON error responses, no stack traces."""
 
 import logging
-import traceback
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
@@ -9,21 +8,21 @@ from fastapi.responses import JSONResponse
 from pydantic import ValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from neuralflow.errors import NeuralFlowError
+
 logger = logging.getLogger("neuralflow.error_handler")
-
-
-def _safe_error_message(exc: BaseException) -> str:
-    """Return a user-safe message; never leak internals."""
-    msg = str(exc)
-    # Strip anything that looks like a file path or stack fragment
-    for pattern in ("/home/", "/tmp/", "Traceback", "File \"", "line "):
-        if pattern in msg:
-            return "An internal error occurred."
-    return msg
 
 
 def register_error_handler(app: FastAPI) -> None:
     """Attach exception handlers to *app* so every error returns structured JSON."""
+
+    @app.exception_handler(NeuralFlowError)
+    async def neuralflow_error_handler(request: Request, exc: NeuralFlowError):
+        logger.warning("NeuralFlowError: %s on %s %s", exc.code, request.method, request.url.path)
+        return JSONResponse(
+            status_code=exc.status_code,
+            content=exc.to_dict(),
+        )
 
     @app.exception_handler(StarletteHTTPException)
     async def http_exception_handler(request: Request, exc: StarletteHTTPException):
@@ -34,6 +33,8 @@ def register_error_handler(app: FastAPI) -> None:
                     "code": f"http_{exc.status_code}",
                     "message": exc.detail,
                     "details": None,
+                    "recovery_hint": None,
+                    "severity": "warning",
                 }
             },
         )
@@ -47,6 +48,8 @@ def register_error_handler(app: FastAPI) -> None:
                     "code": "validation_error",
                     "message": "Request validation failed.",
                     "details": exc.errors(),
+                    "recovery_hint": None,
+                    "severity": "warning",
                 }
             },
         )
@@ -60,13 +63,14 @@ def register_error_handler(app: FastAPI) -> None:
                     "code": "validation_error",
                     "message": "Request validation failed.",
                     "details": exc.errors(),
+                    "recovery_hint": None,
+                    "severity": "warning",
                 }
             },
         )
 
     @app.exception_handler(Exception)
     async def generic_exception_handler(request: Request, exc: Exception):
-        # Log full traceback internally but never expose it to the client
         logger.exception("Unhandled exception on %s %s", request.method, request.url.path)
         return JSONResponse(
             status_code=500,
@@ -75,6 +79,8 @@ def register_error_handler(app: FastAPI) -> None:
                     "code": "internal_error",
                     "message": "An internal error occurred.",
                     "details": None,
+                    "recovery_hint": "Try refreshing or restarting the application.",
+                    "severity": "critical",
                 }
             },
         )

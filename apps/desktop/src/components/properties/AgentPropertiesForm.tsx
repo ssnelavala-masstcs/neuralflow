@@ -1,4 +1,7 @@
+import { useEffect, useState } from "react";
 import { Field, SliderField, ToggleField } from "./PropertyFields";
+import { useProviderStore } from "@/stores/providerStore";
+import { PromptOptimizer } from "@/components/agent/PromptOptimizer";
 
 const ALL_TOOLS = ["web_search", "file_read", "file_write", "file_list", "http_request", "calculator"];
 
@@ -8,7 +11,37 @@ interface Props {
 }
 
 export function AgentPropertiesForm({ data, update }: Props) {
+  const { providers, load } = useProviderStore();
   const tools = (data.tools as string[]) || [];
+  const currentModel = (data.model as string) || "";
+
+  // Build flat list of { value, label } from each provider's comma-separated models
+  const modelOptions: { value: string; label: string; group: string }[] = providers.flatMap((p) => {
+    const models = (p.default_model || "")
+      .split(",")
+      .map((m) => m.trim())
+      .filter(Boolean);
+    return models.map((m) => ({
+      value: `${p.provider_type}/${m}`,
+      label: m,
+      group: p.name || p.provider_type,
+    }));
+  });
+
+  // "custom" mode if current model doesn't match any dropdown option
+  const matchedOption = modelOptions.find((o) => o.value === currentModel);
+  const [useCustom, setUseCustom] = useState(!matchedOption && currentModel !== "");
+
+  useEffect(() => { load(); }, []);
+
+  const handleDropdownChange = (val: string) => {
+    if (val === "__custom__") {
+      setUseCustom(true);
+    } else {
+      setUseCustom(false);
+      update({ model: val });
+    }
+  };
 
   const toggleTool = (tool: string) => {
     const current = tools.includes(tool) ? tools.filter((t) => t !== tool) : [...tools, tool];
@@ -27,12 +60,36 @@ export function AgentPropertiesForm({ data, update }: Props) {
       </Field>
 
       <Field label="Model">
-        <input
-          className="w-full rounded-md border border-input bg-background px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-ring"
-          value={(data.model as string) || ""}
-          onChange={(e) => update({ model: e.target.value })}
-          placeholder="e.g. gpt-4o, claude-sonnet-4-20250514"
-        />
+        {modelOptions.length > 0 && (
+          <select
+            className="w-full rounded-md border border-input bg-background px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-ring mb-1"
+            value={useCustom ? "__custom__" : (currentModel || "")}
+            onChange={(e) => handleDropdownChange(e.target.value)}
+          >
+            <option value="">— pick a model —</option>
+            {/* Group options by provider */}
+            {Array.from(new Set(modelOptions.map((o) => o.group))).map((group) => (
+              <optgroup key={group} label={group}>
+                {modelOptions
+                  .filter((o) => o.group === group)
+                  .map((o) => (
+                    <option key={o.value} value={o.value}>
+                      {o.label}
+                    </option>
+                  ))}
+              </optgroup>
+            ))}
+            <option value="__custom__">Custom…</option>
+          </select>
+        )}
+        {(useCustom || modelOptions.length === 0) && (
+          <input
+            className="w-full rounded-md border border-input bg-background px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-ring"
+            value={currentModel}
+            onChange={(e) => update({ model: e.target.value })}
+            placeholder="e.g. openai/gpt-4o or anthropic/claude-haiku-3-5"
+          />
+        )}
       </Field>
 
       <Field label="Role">
@@ -52,6 +109,11 @@ export function AgentPropertiesForm({ data, update }: Props) {
           placeholder="Enter the system prompt for this agent…"
         />
       </Field>
+
+      <PromptOptimizer
+        prompt={(data.systemPrompt as string) || ""}
+        onChange={(newPrompt) => update({ systemPrompt: newPrompt })}
+      />
 
       <SliderField label="Temperature" value={(data.temperature as number) ?? 0.7} min={0} max={2} step={0.1} onChange={(v: number) => update({ temperature: v })} />
       <SliderField label="Max Tokens" value={(data.maxTokens as number) ?? 4096} min={256} max={32768} step={256} onChange={(v: number) => update({ maxTokens: v })} />

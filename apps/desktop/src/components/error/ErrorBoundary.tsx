@@ -1,9 +1,9 @@
 import { Component, type ErrorInfo, type ReactNode } from "react";
+import { AlertTriangle, RefreshCw } from "lucide-react";
 
 interface Props {
   children: ReactNode;
   fallback?: ReactNode;
-  onError?: (error: Error, info: ErrorInfo) => void;
 }
 
 interface State {
@@ -23,28 +23,26 @@ export class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, info: ErrorInfo) {
     console.error("[ErrorBoundary]", error, info);
-    this.props.onError?.(error, info);
   }
 
   render() {
     if (this.state.hasError) {
+      if (this.props.fallback) return this.props.fallback;
       return (
-        this.props.fallback ?? (
-          <div className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
-            <div className="rounded-md bg-destructive/10 px-4 py-3 max-w-md">
-              <p className="text-sm font-medium text-destructive">Something went wrong</p>
-              <p className="mt-1 text-xs text-muted-foreground font-mono break-all">
-                {this.state.error?.message ?? "Unknown error"}
-              </p>
-            </div>
-            <button
-              onClick={() => this.setState({ hasError: false, error: null })}
-              className="rounded-md bg-primary text-primary-foreground px-4 py-2 text-xs font-medium hover:bg-primary/90 transition-colors"
-            >
-              Try Again
-            </button>
-          </div>
-        )
+        <div className="flex h-full flex-col items-center justify-center gap-4 bg-background p-8 text-center">
+          <AlertTriangle className="h-12 w-12 text-destructive" />
+          <h2 className="text-lg font-semibold text-foreground">Something went wrong</h2>
+          <p className="max-w-md text-sm text-muted-foreground">
+            {this.state.error?.message ?? "An unexpected error occurred."}
+          </p>
+          <button
+            onClick={() => this.setState({ hasError: false, error: null })}
+            className="flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:bg-primary/90"
+          >
+            <RefreshCw className="h-4 w-4" />
+            Try Again
+          </button>
+        </div>
       );
     }
     return this.props.children;

@@ -98,11 +98,11 @@ class Orchestrator:
         providers = result.scalars().all()
         key_map: dict[str, tuple[str | None, str | None]] = {}
         for p in providers:
-            # api_key_ref is the keychain reference; actual key retrieval requires
-            # Tauri IPC from the frontend. For now we check environment variables as fallback.
             import os
             env_key = os.environ.get(f"NEURALFLOW_KEY_{p.provider_type.upper()}")
-            key_map[p.provider_type] = (env_key, p.base_url)
+            # env var takes priority; fall back to the stored key reference
+            actual_key = env_key or p.api_key_ref or None
+            key_map[p.provider_type] = (actual_key, p.base_url)
         return key_map
 
     async def _rollup_costs(self, run: Run) -> None:

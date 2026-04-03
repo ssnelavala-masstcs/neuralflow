@@ -3,6 +3,10 @@ import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import type { CanvasData, ExecutionMode, Workflow, Workspace } from "@/types/workflow";
 import { workflowsApi } from "@/api/workflows";
+import { HistoryManager } from "@/utils/history";
+import { validateWorkflow } from "@/utils/validation/workflowValidator";
+
+const history = new HistoryManager(100);
 
 interface WorkflowState {
   workspaceId: string | null;
@@ -12,6 +16,8 @@ interface WorkflowState {
   edges: Edge[];
   isDirty: boolean;
   isSaving: boolean;
+  validationErrors: Array<{ nodeId?: string; code: string; message: string }>;
+  validationWarnings: Array<{ nodeId?: string; code: string; message: string }>;
 
   // Actions
   setWorkspace: (id: string) => void;
@@ -26,6 +32,11 @@ interface WorkflowState {
   loadWorkflows: (workspaceId: string) => Promise<void>;
   createWorkflow: (name: string) => Promise<Workflow>;
   deleteWorkflow: (id: string) => Promise<void>;
+  undo: () => boolean;
+  redo: () => boolean;
+  canUndo: boolean;
+  canRedo: boolean;
+  validate: () => void;
 }
 
 export const useWorkflowStore = create<WorkflowState>()(
@@ -37,6 +48,10 @@ export const useWorkflowStore = create<WorkflowState>()(
     edges: [],
     isDirty: false,
     isSaving: false,
+    validationErrors: [],
+    validationWarnings: [],
+    canUndo: false,
+    canRedo: false,
 
     setWorkspace: (id) => set((s) => { s.workspaceId = id; }),
 
@@ -50,24 +65,32 @@ export const useWorkflowStore = create<WorkflowState>()(
         s.nodes = wf.canvas_data.nodes as unknown as Node[];
         s.edges = wf.canvas_data.edges as unknown as Edge[];
         s.isDirty = false;
+        history.clear();
+        history.push(s.nodes, s.edges);
       }),
 
     onNodesChange: (changes) =>
       set((s) => {
         s.nodes = applyNodeChanges(changes, s.nodes);
         s.isDirty = true;
+        history.push(s.nodes, s.edges);
+        set((st) => { st.canUndo = history.canUndo; st.canRedo = history.canRedo; });
       }),
 
     onEdgesChange: (changes) =>
       set((s) => {
         s.edges = applyEdgeChanges(changes, s.edges);
         s.isDirty = true;
+        history.push(s.nodes, s.edges);
+        set((st) => { st.canUndo = history.canUndo; st.canRedo = history.canRedo; });
       }),
 
     addNode: (node) =>
       set((s) => {
         s.nodes.push(node);
         s.isDirty = true;
+        history.push(s.nodes, s.edges);
+        set((st) => { st.canUndo = history.canUndo; st.canRedo = history.canRedo; });
       }),
 
     updateNodeData: (id, data) =>
@@ -76,8 +99,35 @@ export const useWorkflowStore = create<WorkflowState>()(
         if (node) {
           Object.assign(node.data, data);
           s.isDirty = true;
+          history.push(s.nodes, s.edges);
+          set((st) => { st.canUndo = history.canUndo; st.canRedo = history.canRedo; });
         }
       }),
+
+    undo: () => {
+      const entry = history.undo();
+      if (!entry) return false;
+      set((s) => { s.nodes = entry.nodes; s.edges = entry.edges; s.isDirty = true; });
+      set((st) => { st.canUndo = history.canUndo; st.canRedo = history.canRedo; });
+      return true;
+    },
+
+    redo: () => {
+      const entry = history.redo();
+      if (!entry) return false;
+      set((s) => { s.nodes = entry.nodes; s.edges = entry.edges; s.isDirty = true; });
+      set((st) => { st.canUndo = history.canUndo; st.canRedo = history.canRedo; });
+      return true;
+    },
+
+    validate: () => {
+      const { nodes, edges } = get();
+      const result = validateWorkflow(nodes, edges);
+      set({
+        validationErrors: result.errors,
+        validationWarnings: result.warnings,
+      });
+    },
 
     updateExecutionMode: async (mode) => {
       const { activeWorkflowId } = get();
@@ -115,6 +165,10 @@ export const useWorkflowStore = create<WorkflowState>()(
           s.nodes = workflows[0].canvas_data.nodes as unknown as Node[];
           s.edges = workflows[0].canvas_data.edges as unknown as Edge[];
         }
+        history.clear();
+        if (s.nodes.length > 0) {
+          history.push(s.nodes, s.edges);
+        }
       });
     },
 
@@ -135,6 +189,7 @@ export const useWorkflowStore = create<WorkflowState>()(
           s.nodes = s.workflows[0]?.canvas_data.nodes as unknown as Node[] ?? [];
           s.edges = s.workflows[0]?.canvas_data.edges as unknown as Edge[] ?? [];
         }
+        history.clear();
       });
     },
   }))

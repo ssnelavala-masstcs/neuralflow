@@ -13,6 +13,27 @@ import { cn } from "@/lib/utils";
 import { runsApi } from "@/api/runs";
 import { debugApi, type RunStep } from "@/api/debug";
 import type { Run } from "@/types/run";
+import { ApiError } from "@/api/client";
+
+/** Extract a readable message from any thrown value. */
+function parseError(err: unknown): string {
+  if (err instanceof ApiError) {
+    // Try to pull the 'detail' field out of a FastAPI JSON error body
+    try {
+      const body = JSON.parse(err.message);
+      if (typeof body?.detail === "string") return `[${err.status}] ${body.detail}`;
+      if (Array.isArray(body?.detail)) {
+        return `[${err.status}] ${body.detail.map((d: { msg?: string }) => d.msg ?? JSON.stringify(d)).join("; ")}`;
+      }
+      // Pydantic validation errors have a different shape
+      if (typeof body === "string") return `[${err.status}] ${body}`;
+    } catch {/* not JSON */}
+    // Raw text — truncate if huge
+    const text = err.message.length > 300 ? err.message.slice(0, 300) + "…" : err.message;
+    return `[${err.status}] ${text}`;
+  }
+  return err instanceof Error ? err.message : String(err);
+}
 
 interface Props {
   workflowId: string | null;
@@ -157,7 +178,7 @@ function RunRow({ run }: RunRowProps) {
         const data = await debugApi.getRunSteps(run.id);
         setSteps(data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : String(err));
+        setError(parseError(err));
       } finally {
         setLoading(false);
       }
@@ -199,9 +220,7 @@ function RunRow({ run }: RunRowProps) {
               <RefreshCw size={11} className="animate-spin" /> Loading steps…
             </div>
           )}
-          {error && (
-            <div className="px-3 py-2 text-[11px] text-red-400">{error}</div>
-          )}
+          {error && <ErrorBox message={error} compact />}
           {steps !== null && steps.length === 0 && (
             <div className="px-3 py-2 text-[11px] text-muted-foreground italic">No steps recorded.</div>
           )}
@@ -210,6 +229,34 @@ function RunRow({ run }: RunRowProps) {
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+function ErrorBox({ message, compact, onRetry }: { message: string; compact?: boolean; onRetry?: () => void }) {
+  const [copied, setCopied] = useState(false);
+  const copy = () => {
+    navigator.clipboard.writeText(message).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    });
+  };
+  return (
+    <div className={cn("mx-3 rounded-md bg-red-500/10 border border-red-500/20", compact ? "my-1 p-2" : "my-3 p-3")}>
+      <div className="flex items-start gap-2">
+        <XCircle size={13} className="text-red-400 shrink-0 mt-0.5" />
+        <p className="text-[11px] text-red-400 font-mono break-all flex-1 whitespace-pre-wrap">{message}</p>
+      </div>
+      <div className="flex items-center gap-2 mt-2">
+        <button onClick={copy} className="text-[10px] text-muted-foreground hover:text-foreground transition-colors">
+          {copied ? "Copied!" : "Copy error"}
+        </button>
+        {onRetry && (
+          <button onClick={onRetry} className="text-[10px] text-primary hover:text-primary/80 transition-colors flex items-center gap-1">
+            <RefreshCw size={10} /> Retry
+          </button>
+        )}
+      </div>
     </div>
   );
 }
@@ -227,7 +274,7 @@ export function RunHistoryPanel({ workflowId }: Props) {
       const data = await runsApi.list(workflowId);
       setRuns(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
+      setError(parseError(err));
     } finally {
       setLoading(false);
     }
@@ -268,9 +315,7 @@ export function RunHistoryPanel({ workflowId }: Props) {
             <RefreshCw size={12} className="animate-spin" /> Loading runs…
           </div>
         )}
-        {error && (
-          <div className="px-3 py-3 text-xs text-red-400">{error}</div>
-        )}
+        {error && <ErrorBox message={error} onRetry={load} />}
         {runs !== null && runs.length === 0 && (
           <div className="px-3 py-4 text-xs text-muted-foreground italic">No runs yet for this workflow.</div>
         )}

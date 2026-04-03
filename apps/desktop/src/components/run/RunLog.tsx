@@ -1,7 +1,8 @@
 import { useRunStore } from "@/stores/runStore";
 import { cn } from "@/lib/utils";
 import type { StreamEvent } from "@/types/run";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { AutoDebugPanel } from "@/components/debug/AutoDebugPanel";
 
 function EventLine({ event }: { event: StreamEvent }) {
   const colors: Record<string, string> = {
@@ -59,10 +60,23 @@ function EventLine({ event }: { event: StreamEvent }) {
 export function RunLog() {
   const { streamEvents, runStatus, output } = useRunStore();
   const bottomRef = useRef<HTMLDivElement>(null);
+  const [lastError, setLastError] = useState<{ message: string; nodeId?: string } | null>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [streamEvents.length]);
+
+  // Track last error for auto-debug
+  useEffect(() => {
+    for (let i = streamEvents.length - 1; i >= 0; i--) {
+      const ev = streamEvents[i];
+      if (ev.type === "error" || ev.type === "node_failed" || ev.type === "run_failed") {
+        setLastError({ message: ev.error ?? ev.message ?? "Unknown error", nodeId: ev.node_id });
+        break;
+      }
+    }
+    if (runStatus === "idle") setLastError(null);
+  }, [streamEvents, runStatus]);
 
   return (
     <div className="h-full flex flex-col">
@@ -86,6 +100,14 @@ export function RunLog() {
         {streamEvents.map((ev, i) => <EventLine key={i} event={ev} />)}
         <div ref={bottomRef} />
       </div>
+      {lastError && (
+        <div className="border-t border-border p-2 shrink-0">
+          <AutoDebugPanel
+            errorMessage={lastError.message}
+            nodeConfig={lastError.nodeId ? { node_id: lastError.nodeId } : undefined}
+          />
+        </div>
+      )}
     </div>
   );
 }

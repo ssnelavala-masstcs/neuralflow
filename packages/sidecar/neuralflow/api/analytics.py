@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from neuralflow.database import get_db
 from neuralflow.models.run import LlmCall, Run
+from neuralflow.services.cost_estimator import estimate_workflow
 
 router = APIRouter(prefix="/api/analytics")
 
@@ -132,4 +133,23 @@ async def get_cost_analytics(
             "run_count": int(totals_row[3] or 0),
         },
         "period_days": days,
+    }
+
+
+@router.post("/estimate")
+async def estimate_workflow_cost(
+    body: dict[str, Any],
+) -> dict[str, Any]:
+    """Estimate cost for a workflow definition before running it."""
+    nodes = body.get("nodes", [])
+    edges = body.get("edges", [])
+    result = estimate_workflow(nodes, edges)
+    return {
+        "estimated_input_tokens": result.estimated_input_tokens,
+        "estimated_output_tokens": result.estimated_output_tokens,
+        "estimated_cost_usd": result.estimated_cost_usd,
+        "low_estimate_usd": result.low_estimate_usd,
+        "high_estimate_usd": result.high_estimate_usd,
+        "per_node": result.per_node,
+        "model_pricing_used": result.model_pricing_used,
     }

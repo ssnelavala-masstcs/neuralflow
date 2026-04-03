@@ -1193,3 +1193,28 @@ kbd {
   .footer-inner { grid-template-columns: 1fr; }
   .footer-bottom { flex-direction: column; gap: 8px; }
 }
+
+/* ── Screenshots ────────────────────────────────────────── */
+figure.screenshot {
+  margin: 32px 0;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+}
+
+figure.screenshot img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 8px 8px 0 0;
+}
+
+figure.screenshot figcaption {
+  padding: 12px 16px;
+  font-size: 12px;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+  border-top: 1px solid var(--border-subtle);
+  background: var(--bg-card);
+}

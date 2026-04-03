@@ -1,6 +1,7 @@
 export type ProviderType =
   | "openai"
   | "anthropic"
+  | "openrouter"
   | "groq"
   | "mistral"
   | "deepseek"

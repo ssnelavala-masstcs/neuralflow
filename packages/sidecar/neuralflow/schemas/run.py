@@ -1,7 +1,20 @@
 from datetime import datetime
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+
+
+def _parse_json_field(v: Any) -> Any:
+    """Coerce a JSON string to a dict/list; pass through None or already-parsed values."""
+    if v is None or isinstance(v, (dict, list)):
+        return v
+    if isinstance(v, str):
+        import json
+        try:
+            return json.loads(v)
+        except Exception:
+            return None
+    return v
 
 
 class RunCreate(BaseModel):
@@ -29,6 +42,11 @@ class RunOut(BaseModel):
 
     model_config = {"from_attributes": True}
 
+    @field_validator("input_data", "output_data", mode="before")
+    @classmethod
+    def parse_json(cls, v: Any) -> Any:
+        return _parse_json_field(v)
+
 
 class NodeRunOut(BaseModel):
     id: str
@@ -48,6 +66,11 @@ class NodeRunOut(BaseModel):
     output_tokens: int
 
     model_config = {"from_attributes": True}
+
+    @field_validator("input_data", "output_data", mode="before")
+    @classmethod
+    def parse_json(cls, v: Any) -> Any:
+        return _parse_json_field(v)
 
 
 class LlmCallOut(BaseModel):

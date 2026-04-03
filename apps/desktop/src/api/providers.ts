@@ -14,5 +14,10 @@ export const providersApi = {
     api.patch<Provider>(`/api/providers/${id}`, data),
   delete: (id: string) => api.delete<void>(`/api/providers/${id}`),
   listModels: (id: string) => api.get<ModelInfo[]>(`/api/providers/${id}/models`),
-  test: (id: string) => api.post<{ ok: boolean; error?: string; latency_ms?: number }>(`/api/providers/${id}/test`),
+  test: (id: string) =>
+    api.post<{
+      ok: boolean;
+      error?: string;
+      models?: { model: string; ok: boolean; latency_ms?: number; error?: string }[];
+    }>(`/api/providers/${id}/test`),
 };

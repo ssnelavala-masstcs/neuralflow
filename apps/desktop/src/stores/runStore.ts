@@ -19,6 +19,7 @@ interface RunState {
 }
 
 let _cleanup: (() => void) | null = null;
+let _isCancelling = false;
 
 export const useRunStore = create<RunState>()(
   immer((set, get) => ({
@@ -77,9 +78,21 @@ export const useRunStore = create<RunState>()(
             }
           });
         },
-        () => {
+        async () => {
           set((s) => { s.isStreaming = false; });
           _cleanup = null;
+          // Skip the status fetch if we're in the middle of a manual cancel —
+          // cancelRun sets the status itself after this fires.
+          if (_isCancelling) return;
+          // Safety net: if status is still stuck in an active state after SSE closes
+          // (e.g. run completed before SSE connected), fetch the final status.
+          const state = get();
+          if (state.activeRun && (state.runStatus === "queued" || state.runStatus === "running")) {
+            try {
+              const finalRun = await runsApi.get(state.activeRun.id);
+              set((s) => { s.runStatus = finalRun.status as RunStatus; });
+            } catch { /* ignore */ }
+          }
         }
       );
     },
@@ -87,9 +100,14 @@ export const useRunStore = create<RunState>()(
     cancelRun: async () => {
       const { activeRun } = get();
       if (!activeRun) return;
+      _isCancelling = true;
+      try {
+        await runsApi.cancel(activeRun.id);
+      } catch { /* already finished — still close cleanly */ }
       _cleanup?.();
-      await runsApi.cancel(activeRun.id);
+      _cleanup = null;
       set((s) => { s.runStatus = "cancelled"; s.isStreaming = false; });
+      _isCancelling = false;
     },
 
     clearRun: () =>

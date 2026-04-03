@@ -1,0 +1,40 @@
+version: "3.8"
+
+services:
+  neuralflow:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "7411:7411"
+    volumes:
+      - neuralflow-data:/root/.neuralflow
+    environment:
+      - NEURALFLOW_HOST=0.0.0.0
+      - NEURALFLOW_PORT=7411
+      - NEURALFLOW_CORS_ORIGINS=*
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7411/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # Optional: PostgreSQL for multi-user/team deployments
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: neuralflow
+      POSTGRES_USER: neuralflow
+      POSTGRES_PASSWORD: neuralflow_secret
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    profiles:
+      - postgres
+
+volumes:
+  neuralflow-data:
+  postgres-data:

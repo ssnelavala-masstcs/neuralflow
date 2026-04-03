@@ -42,6 +42,16 @@ def _register_routers(app: FastAPI) -> None:
     from neuralflow.api.auth import router as auth_router
     from neuralflow.api.plugins import router as plugins_router
     from neuralflow.api.sharing import router as sharing_router
+    from neuralflow.api.notifications import router as notifications_router
+    from neuralflow.api.audit import router as audit_router
+    from neuralflow.api.agent_memory import router as agent_memory_router
+    from neuralflow.api.quota import router as quota_router
+    from neuralflow.api.prompt_optimizer import router as prompt_optimizer_router
+    from neuralflow.api.auto_debug import router as auto_debug_router
+    from neuralflow.api.mcp_registry import router as mcp_registry_router
+    from neuralflow.api.ai_builder import router as ai_builder_router
+    from neuralflow.api.swarm import router as swarm_router
+    from neuralflow.api.subagent import router as subagent_router
 
     app.include_router(health_router)
     app.include_router(workflows_router)
@@ -59,6 +69,16 @@ def _register_routers(app: FastAPI) -> None:
     app.include_router(auth_router)
     app.include_router(plugins_router)
     app.include_router(sharing_router)
+    app.include_router(notifications_router)
+    app.include_router(audit_router)
+    app.include_router(agent_memory_router)
+    app.include_router(quota_router)
+    app.include_router(prompt_optimizer_router)
+    app.include_router(auto_debug_router)
+    app.include_router(mcp_registry_router)
+    app.include_router(ai_builder_router)
+    app.include_router(swarm_router)
+    app.include_router(subagent_router)
 
 
 def _add_middleware(app: FastAPI) -> None:
@@ -81,6 +101,9 @@ def _add_middleware(app: FastAPI) -> None:
 
     from neuralflow.middleware.request_size import RequestSizeMiddleware
     app.add_middleware(RequestSizeMiddleware)
+
+    from neuralflow.middleware.audit_log import AuditMiddleware
+    app.add_middleware(AuditMiddleware)
 
     from neuralflow.middleware.error_handler import register_error_handler
     register_error_handler(app)
@@ -124,6 +147,9 @@ def create_app(testing: bool = False) -> FastAPI:
 
         from neuralflow.middleware.request_size import RequestSizeMiddleware
         application.add_middleware(RequestSizeMiddleware)
+
+        from neuralflow.middleware.audit_log import AuditMiddleware
+        application.add_middleware(AuditMiddleware)
 
     from neuralflow.middleware.error_handler import register_error_handler
     register_error_handler(application)

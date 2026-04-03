@@ -1,0 +1,15 @@
+node_modules/
+dist/
+build/
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.venv/
+uv.lock
+*.egg-info/
+src-tauri/target/
+.DS_Store
+.env
+*.db
+*.sqlite

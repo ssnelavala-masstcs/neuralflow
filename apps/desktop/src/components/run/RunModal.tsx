@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useWorkflowStore } from "@/stores/workflowStore";
 import { useRunStore } from "@/stores/runStore";
+import { CostEstimator } from "@/components/cost/CostEstimator";
 
 interface RunModalProps {
   open: boolean;
@@ -9,7 +10,7 @@ interface RunModalProps {
 
 export function RunModal({ open, onClose }: RunModalProps) {
   const [input, setInput] = useState("");
-  const { activeWorkflowId } = useWorkflowStore();
+  const { activeWorkflowId, nodes, edges } = useWorkflowStore();
   const { startRun, runStatus } = useRunStore();
 
   if (!open) return null;
@@ -32,6 +33,9 @@ export function RunModal({ open, onClose }: RunModalProps) {
           value={input}
           onChange={(e) => setInput(e.target.value)}
         />
+        <div className="mt-3">
+          <CostEstimator nodes={nodes} edges={edges} />
+        </div>
         <div className="flex justify-end gap-2 mt-4">
           <button onClick={onClose} className="rounded-md px-4 py-2 text-sm border border-border hover:bg-accent transition-colors">
             Cancel

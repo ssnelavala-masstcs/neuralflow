@@ -88,6 +88,44 @@ API keys stored in your **OS keychain** — never on disk.
 - **Run History**: Persistent log with status, duration, and cost
 - **Version History**: Snapshot workflows, rollback to previous versions
 - **Visual Diff Viewer**: Compare two workflow versions side-by-side
+- **Auto-Debug AI**: When a workflow fails, an AI agent diagnoses the root cause and suggests fixes
+- **Audit Log**: Complete audit trail of every API request for compliance
+- **Notification Center**: Real-time alerts for run completions, failures, budget alerts, and HITL waiting
+- **Connection Resilience**: Auto-reconnect with heartbeat monitoring and request queuing
+
+### Cost Intelligence
+- **Pre-Run Cost Estimation**: See estimated cost before running based on model pricing
+- **Per-node, per-run cost breakdown** from LiteLLM
+- **Cost charts** by day / workflow / model
+- **Budget Quotas**: Set monthly/daily/per-run budgets with soft alerts and hard stops
+- **CSV export**
+
+### Developer Experience
+- **Command Palette (Ctrl+K)**: Fuzzy-searchable commands for everything
+- **Undo/Redo**: Full canvas history with Ctrl+Z / Ctrl+Shift+Z
+- **Workflow Validation**: Real-time validation with inline error indicators
+- **Prompt Optimizer**: Analyze system prompts for quality issues and auto-fix them
+- **Keyboard Shortcuts**: Full keyboard navigation and operation
+- **Enhanced Canvas Navigation**: Zoom controls, fit-view, minimap with node status coloring
+
+### AI-Assisted Development
+- **Prompt Optimizer**: Scores prompts 0-100, identifies issues, suggests improvements
+- **Auto-Debug**: AI diagnoses workflow failures with root cause analysis and fix suggestions
+- **Agent Memory**: Persistent context across runs with semantic search
+- **Sub-Agent Spawning**: Agents can delegate to specialized sub-agents in parallel
+
+### Enterprise & Security
+- **Quota Management**: Budget limits, rate limiting per provider, spend alerts
+- **Audit Logging**: Complete request audit trail with filtering and export
+- **Structured Errors**: User-friendly error messages with recovery hints, never stack traces
+- **Rate Limiting**: Per-IP sliding window with configurable overrides
+- **Request Size Limits**: 10 MB default, 50 MB for upload endpoints
+
+### Self-Hosting & Deployment
+- **Docker Support**: Multi-stage Dockerfile with sidecar + frontend
+- **Docker Compose**: One-command deployment with optional PostgreSQL
+- **Health Checks**: Built-in container health monitoring
+- **Reverse Proxy Ready**: Nginx configuration included in docs
 
 ### Template Gallery
 - 5 built-in templates: Research Assistant, Content Writer, Code Reviewer, Data Analyzer, Web Scraper
@@ -179,6 +217,10 @@ Load any template via the **Templates** menu in the app.
 │  │         React Frontend (Webview)          │  │
 │  │   Canvas (React Flow) │ UI (Tailwind)    │  │
 │  │   State (Zustand)     │ API Client        │  │
+│  │   Command Palette     │ Error Handling    │  │
+│  │   Undo/Redo           │ Validation        │  │
+│  │   Cost Estimator      │ Notifications     │  │
+│  │   Prompt Optimizer    │ Auto-Debug        │  │
 │  └───────────────────────────────────────────┘  │
 │                                                  │
 │  ┌───────────────────────────────────────────┐  │
@@ -196,8 +238,23 @@ Load any template via the **Templates** menu in the app.
 │  ├── CrewAI Executor (hierarchical) ✅            │
 │  └── LangGraph Executor (state machine) ✅        │
 │                                                    │
+│  Services                                          │
+│  ├── Cost Estimator       ✅  Pre-run pricing     │
+│  ├── Quota Manager        ✅  Budgets & limits    │
+│  ├── Notification Svc     ✅  Alerts & events     │
+│  ├── Agent Memory         ✅  Persistent context  │
+│  ├── Sub-Agent Manager    ✅  Parallel delegation  │
+│  ├── Prompt Optimizer     ✅  Quality scoring     │
+│  └── Auto-Debug           ✅  Failure diagnosis   │
+│                                                    │
+│  Middleware                                        │
+│  ├── Rate Limiter         ✅  Sliding window      │
+│  ├── Request Size         ✅  Payload limits      │
+│  ├── Audit Logger         ✅  Request trail       │
+│  └── Error Handler        ✅  Structured JSON     │
+│                                                    │
 │  LiteLLM · MCP Client · Built-in Tools            │
-│  SQLite + SQLAlchemy · APScheduler                │
+│  SQLite/PostgreSQL + SQLAlchemy · APScheduler     │
 │  Plugin Loader · Replay Engine · Memory + RAG     │
 └───────────────────────────────────────────────────┘
 ```

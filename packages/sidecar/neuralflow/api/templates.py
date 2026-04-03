@@ -10,7 +10,7 @@ from neuralflow.schemas.workflow import WorkflowOut
 router = APIRouter(prefix="/api/templates")
 
 # Templates dir relative to repo root — resolved at runtime
-_TEMPLATES_DIR = Path(__file__).parents[5] / "templates"
+_TEMPLATES_DIR = Path(__file__).parents[4] / "templates"
 
 
 @router.get("")

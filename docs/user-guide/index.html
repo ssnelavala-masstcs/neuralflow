@@ -74,6 +74,11 @@
       The Python sidecar runs silently in the background on port 7411.
     </p>
 
+    <figure class="screenshot">
+      <img src="../assets/screenshots/01-empty-canvas-onboarding.png" alt="NeuralFlow empty canvas with onboarding card" />
+      <figcaption>The NeuralFlow desktop app — empty canvas with onboarding guide</figcaption>
+    </figure>
+
     <div class="feature-grid" style="margin-top:24px;">
       <div class="feature-card">
         <div class="feature-icon">🖥️</div>
@@ -113,6 +118,12 @@
       The node palette on the left side of the canvas lists all available node types grouped by
       category. Drag any node onto the canvas to add it to your workflow.
     </p>
+
+    <figure class="screenshot">
+      <img src="../assets/screenshots/02-node-palette.png" alt="NeuralFlow node palette" />
+      <figcaption>The node palette — drag nodes onto the canvas</figcaption>
+    </figure>
+
     <ul>
       <li><strong>Agent Nodes:</strong> AgentNode, RouterNode, HumanNode</li>
       <li><strong>Tool Nodes:</strong> ToolNode, McpNode</li>
@@ -129,6 +140,12 @@
       When you select a node on the canvas, the Properties panel slides in from the right. It
       shows all configurable fields for that node type with inline validation and help text.
     </p>
+
+    <figure class="screenshot">
+      <img src="../assets/screenshots/05-agent-node-properties.png" alt="Agent node properties panel" />
+      <figcaption>Agent node properties — configure model, prompts, and tools</figcaption>
+    </figure>
+
     <ul>
       <li><strong>Label:</strong> The display name shown on the canvas node card.</li>
       <li><strong>Model:</strong> (AgentNode only) Select from available providers and models.</li>
@@ -144,6 +161,12 @@
       the current workflow. You'll be prompted for input text (the InputNode payload), then the
       orchestrator begins execution.
     </p>
+
+    <figure class="screenshot">
+      <img src="../assets/screenshots/11-complete-workflow.png" alt="Complete workflow on canvas" />
+      <figcaption>A complete workflow — Trigger → Agent → Output</figcaption>
+    </figure>
+
     <ol class="steps">
       <li><strong>Input dialog:</strong> Type the initial text for your workflow and click <strong>Submit</strong>.</li>
       <li><strong>Live execution:</strong> Each node card animates while processing. A green badge appears on completion.</li>
@@ -152,11 +175,17 @@
     </ol>
 
     <!-- Run History -->
-    <h2 id="run-history">Run History</h2>
+    <h2 id="run-history">Run History &amp; Debug</h2>
     <p>
       Every workflow execution is saved. Open the Run History panel to browse past runs, view
       per-node traces, and replay any run from a specific step.
     </p>
+
+    <figure class="screenshot">
+      <img src="../assets/screenshots/09-bottom-panel.png" alt="Bottom panel with run history and debug tabs" />
+      <figcaption>Bottom panel — Run Log, Debug, and Version History tabs</figcaption>
+    </figure>
+
     <ul>
       <li><strong>Replay:</strong> Re-run a past execution from any node in the chain.</li>
       <li><strong>Compare:</strong> View side-by-side outputs from different runs.</li>
@@ -185,6 +214,12 @@
       The Settings panel (gear icon in the toolbar) gives you access to workspace configuration,
       provider management, and application preferences.
     </p>
+
+    <figure class="screenshot">
+      <img src="../assets/screenshots/03-command-palette.png" alt="Command palette with keyboard shortcuts" />
+      <figcaption>Command palette (Ctrl+K) — quick access to all commands</figcaption>
+    </figure>
+
     <ul>
       <li><strong>Providers:</strong> Add, test, and remove LLM providers. API keys are stored in the OS keychain.</li>
       <li><strong>Workspaces:</strong> Create and switch between workspaces. Each has its own SQLite database.</li>
@@ -192,6 +227,73 @@
       <li><strong>Cost Alerts:</strong> Set a USD threshold to get warned when a single run exceeds it.</li>
       <li><strong>MCP Servers:</strong> Configure Model Context Protocol server connections.</li>
     </ul>
+
+    <!-- New Features -->
+    <h2 id="new-features">New Features</h2>
+    <p>Recent additions to NeuralFlow include:</p>
+
+    <figure class="screenshot">
+      <img src="../assets/screenshots/07-template-gallery.png" alt="Template Gallery with MCP Servers, AI Builder, Plugins tabs" />
+      <figcaption>Template Gallery — browse templates, MCP servers, AI Builder, and more</figcaption>
+    </figure>
+
+    <div class="feature-grid" style="margin-top:24px;">
+      <div class="feature-card">
+        <div class="feature-icon">⌨️</div>
+        <h3>Command Palette</h3>
+        <p>Press <kbd>Ctrl+K</kbd> for fuzzy-searchable commands. Navigate with arrow keys, select with Enter.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">↩️</div>
+        <h3>Undo/Redo</h3>
+        <p>Full canvas history with <kbd>Ctrl+Z</kbd> / <kbd>Ctrl+Shift+Z</kbd>. Buttons in the title bar.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💰</div>
+        <h3>Cost Estimation</h3>
+        <p>See estimated cost before running based on model pricing with per-node breakdown.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔍</div>
+        <h3>Workflow Validation</h3>
+        <p>Real-time validation catches missing triggers, outputs, and model configs before you run.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🤖</div>
+        <h3>AI Workflow Builder</h3>
+        <p>Describe your workflow in natural language and get a generated workflow.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔌</div>
+        <h3>MCP Marketplace</h3>
+        <p>Browse, search, and install MCP servers directly from the app.</p>
+      </div>
+    </div>
+
+    <figure class="screenshot">
+      <img src="../assets/screenshots/06-undo-redo.png" alt="Undo/Redo buttons in title bar" />
+      <figcaption>Undo/Redo buttons — full canvas history</figcaption>
+    </figure>
+
+    <figure class="screenshot">
+      <img src="../assets/screenshots/12-validation-errors.png" alt="Workflow validation errors" />
+      <figcaption>Workflow validation — catches errors before you run</figcaption>
+    </figure>
+
+    <figure class="screenshot">
+      <img src="../assets/screenshots/13-cost-dashboard.png" alt="Cost Dashboard" />
+      <figcaption>Cost Dashboard — track spending by day, model, and workflow</figcaption>
+    </figure>
+
+    <figure class="screenshot">
+      <img src="../assets/screenshots/08-connection-status.png" alt="Connection status indicator" />
+      <figcaption>Connection status — auto-reconnect with heartbeat monitoring</figcaption>
+    </figure>
+
+    <figure class="screenshot">
+      <img src="../assets/screenshots/15-notification-bell.png" alt="Notification bell" />
+      <figcaption>Notification center — alerts for runs, budgets, and HITL</figcaption>
+    </figure>
 
     <div style="margin-top:48px;padding-top:24px;border-top:var(--border-subtle);display:flex;gap:16px;">
       <a href="../guide/getting-started.html" class="btn-primary">[ EXECUTE ] — Getting Started</a>

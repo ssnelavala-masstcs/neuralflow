@@ -1,10 +1,16 @@
 import { useSettingsStore } from "@/stores/settingsStore";
+import { useErrorStore } from "@/stores/errorStore";
+import { resolveError } from "@/types/errors";
 
 const DEFAULT_BASE_URL = "http://127.0.0.1:7411";
 
 export class ApiError extends Error {
-  constructor(public status: number, message: string) {
+  public code: string;
+  public recovery_hint: string;
+  constructor(public status: number, message: string, code?: string, recovery_hint?: string) {
     super(message);
+    this.code = code ?? "unknown";
+    this.recovery_hint = recovery_hint ?? "";
   }
 }
 
@@ -28,8 +34,14 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     ...init,
   });
   if (!res.ok) {
-    const text = await res.text().catch(() => res.statusText);
-    throw new ApiError(res.status, text);
+    const body = await res.json().catch(() => null);
+    const errorBody = body?.error as Record<string, unknown> | undefined;
+    const code = (errorBody?.code as string) ?? `http_${res.status}`;
+    const message = (errorBody?.message as string) ?? res.statusText;
+    const recovery_hint = (errorBody?.recovery_hint as string) ?? undefined;
+    const err = new ApiError(res.status, message, code, recovery_hint);
+    useErrorStore.getState().addError(err);
+    throw err;
   }
   if (res.status === 204) return undefined as T;
   return res.json() as Promise<T>;

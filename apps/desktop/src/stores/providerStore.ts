@@ -3,10 +3,18 @@ import { immer } from "zustand/middleware/immer";
 import type { ConnectionStatus, ModelInfo, Provider } from "@/types/provider";
 import { providersApi } from "@/api/providers";
 
+export interface ModelTestResult {
+  model: string;
+  ok: boolean;
+  latency_ms?: number;
+  error?: string;
+}
+
 interface ProviderState {
   providers: Provider[];
   models: Record<string, ModelInfo[]>;
   connectionStatus: Record<string, ConnectionStatus>;
+  modelTestResults: Record<string, ModelTestResult[]>;
 
   load: () => Promise<void>;
   addProvider: (data: Omit<Provider, "id" | "created_at" | "updated_at" | "is_active">) => Promise<Provider>;
@@ -20,6 +28,7 @@ export const useProviderStore = create<ProviderState>()(
     providers: [],
     models: {},
     connectionStatus: {},
+    modelTestResults: {},
 
     load: async () => {
       const providers = await providersApi.list();
@@ -47,7 +56,10 @@ export const useProviderStore = create<ProviderState>()(
       set((s) => { s.connectionStatus[id] = "testing"; });
       try {
         const result = await providersApi.test(id);
-        set((s) => { s.connectionStatus[id] = result.ok ? "ok" : "error"; });
+        set((s) => {
+          s.connectionStatus[id] = result.ok ? "ok" : "error";
+          if (result.models) s.modelTestResults[id] = result.models;
+        });
         return result.ok;
       } catch {
         set((s) => { s.connectionStatus[id] = "error"; });
