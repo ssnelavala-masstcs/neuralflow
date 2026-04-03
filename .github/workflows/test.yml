@@ -28,6 +28,7 @@ jobs:
 
   test-sidecar:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -38,10 +39,8 @@ jobs:
       - name: Install sidecar + test deps
         run: |
           cd packages/sidecar
-          uv venv
-          uv pip install -e ".[dev]"
-        working-directory: packages/sidecar
+          uv sync --extra dev
       - name: Run tests
         run: |
           cd packages/sidecar
-          .venv/bin/pytest tests/ -v
+          uv run pytest tests/ -v
